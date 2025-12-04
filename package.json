@@ -32,7 +32,7 @@
 		"modern"
 	],
 	"scripts": {
-		"dev": "concurrently \"pnpm run dev:server\" \"pnpm run dev:client --host\"",
+		"dev": "concurrently --kill-others \"pnpm run dev:server\" \"pnpm run dev:client --host\"",
 		"dev:server": "nodemon --exec tsx server/index.ts",
 		"dev:client": "vite",
 		"build": "tsc && vite build",
@@ -95,6 +95,7 @@
 		"@vitejs/plugin-react": "^5.1.1",
 		"@vitest/ui": "^4.0.15",
 		"babel-plugin-react-compiler": "^1.0.0",
+		"baseline-browser-mapping": "^2.9.0",
 		"concurrently": "^9.2.1",
 		"eslint": "^9.39.1",
 		"eslint-config-prettier": "^10.1.8",

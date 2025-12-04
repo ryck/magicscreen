@@ -162,3 +162,13 @@ app.get('/api/tfl/*splat', async (req: Request, res: Response) => {
 app.listen(PORT, () => {
 	console.log(`🚀 Proxy server running on http://localhost:${PORT}`)
 })
+
+
+// Handle uncaught errors gracefully
+process.on('uncaughtException', (error) => {
+	console.error('💥 Uncaught Exception:', error.message)
+})
+
+process.on('unhandledRejection', (reason) => {
+	console.error('💥 Unhandled Rejection:', reason)
+})

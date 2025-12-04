@@ -12,6 +12,7 @@ export type TflArrival = {
 
 export type TflArrivalsConfig = {
 	naptanId: string
+	stopName?: string
 	limit?: number
 	refreshIntervalSeconds?: number
 }

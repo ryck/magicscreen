@@ -46,12 +46,7 @@ export default defineConfig({
 		tailwindcss(),
 		checker({
 			typescript: true,
-			biome: {
-				command: 'check'
-			},
-			overlay: {
-				initialIsOpen: false
-			}
+			terminal: false // Reduce console output
 		}),
 		inspect() // Visit http://localhost:5173/__inspect/
 	],
@@ -63,5 +58,9 @@ export default defineConfig({
 				changeOrigin: true
 			}
 		}
+	},
+	build: {
+		sourcemap: false,
+		chunkSizeWarningLimit: 1000
 	}
 })
