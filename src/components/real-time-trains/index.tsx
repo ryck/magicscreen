@@ -214,7 +214,7 @@ export const RealTimeTrains = ({
   return (
     <div className={`p-4 ${className}`} id='real-time-trains'>
       <div className="mb-4">
-        <div className="font-medium text-white text-xl">
+        <div className="font-medium text-white text-lg">
           {data?.location.name} → {data?.filter.destination.name}
         </div>
       </div>
@@ -239,7 +239,7 @@ export const RealTimeTrains = ({
               key={`${service.serviceUid}/${service.runDate}`}
             >
               <div className="flex min-w-0 flex-1 items-center gap-4">
-                <div className="flex h-8 w-12 shrink-0 items-center justify-center rounded bg-green-800 font-bold text-white text-sm">
+                <div className="flex h-8 w-12 shrink-0 items-center justify-center rounded bg-green-800 font-bold text-shadow-white text-white text-sm">
                   {platform}
                 </div>
                 <div className="min-w-0 flex-1 truncate text-white">
