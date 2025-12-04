@@ -1,130 +1,166 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Widget } from '../widget'
 import { useSharedStore } from '@/store/shared'
 import { cn } from '@/utils'
 import complimentsData from './compliments.json'
 import type { ComplimentsConfig } from './types'
 
 type ComplimentsProps = {
-	config: ComplimentsConfig
-	className?: string
+  config: ComplimentsConfig
 }
 
 const DEFAULT_REFRESH_INTERVAL_SECONDS = 5 * 60
 
-function getRandomCompliment(compliments: string[]): string {
-	const randomIndex = Math.floor(Math.random() * compliments.length)
-	return compliments[randomIndex]
+type WeightedCompliment = {
+  text: string
+  weight: number
+}
+
+function getWeightedRandomCompliment(compliments: WeightedCompliment[]): string {
+  // Calculate total weight
+  const totalWeight = compliments.reduce((sum, c) => sum + c.weight, 0)
+
+  // Generate random number between 0 and totalWeight
+  let random = Math.random() * totalWeight
+
+  // Select compliment based on weight
+  for (const compliment of compliments) {
+    random -= compliment.weight
+    if (random <= 0) {
+      return compliment.text
+    }
+  }
+
+  // Fallback (should never reach here)
+  return compliments[0].text
 }
 
 export default function Compliments({
-	config,
-	className = ''
+  config
 }: ComplimentsProps) {
-	const { refreshIntervalSeconds = DEFAULT_REFRESH_INTERVAL_SECONDS } = config
+  const { refreshIntervalSeconds = DEFAULT_REFRESH_INTERVAL_SECONDS } = config
 
-	// Get weather condition from shared store
-	const weatherCondition = useSharedStore((state) => state.weather.condition)
-	const isDaytime = useSharedStore((state) => state.weather.isDaytime)
+  // Get weather condition from shared store
+  const weatherCondition = useSharedStore((state) => state.weather.condition)
+  const isDaytime = useSharedStore((state) => state.weather.isDaytime)
+  const isHoliday = useSharedStore((state) => state.isHoliday)
 
-	const [compliment, setCompliment] = useState<string>(() =>
-		getRandomCompliment(complimentsData.anytime)
-	)
-	const [isVisible, setIsVisible] = useState(true)
+  const [compliment, setCompliment] = useState<string>(() =>
+    getWeightedRandomCompliment([{ text: complimentsData.anytime[0] || 'Welcome!', weight: 1 }])
+  )
+  const [isVisible, setIsVisible] = useState(true)
 
-	// Get time of day
-	const getTimeOfDay = useCallback((): 'morning' | 'afternoon' | 'evening' => {
-		const hour = new Date().getHours()
-		if (hour >= 5 && hour < 12) {
-			return 'morning'
-		}
-		if (hour >= 12 && hour < 17) {
-			return 'afternoon'
-		}
-		return 'evening'
-	}, [])
+  // Get time of day
+  const getTimeOfDay = useCallback((): 'morning' | 'afternoon' | 'evening' | 'night' => {
+    const hour = new Date().getHours()
+    if (hour >= 9 && hour < 12) {
+      return 'morning'
+    }
+    if (hour >= 12 && hour < 18) {
+      return 'afternoon'
+    }
+    if (hour >= 18 && hour < 22) {
+      return 'evening'
+    }
+    return 'night'
+  }, [])
 
-	// Helper to add compliments by key
-	const addComplimentsByKey = useCallback(
-		(compliments: string[], key: string) => {
-			const typedKey = key as keyof typeof complimentsData
-			// console.log('Adding compliments for key:', typedKey)
-			if (complimentsData[typedKey]?.length > 0) {
-				// console.log('Found compliments:', complimentsData[typedKey])
-				compliments.push(...complimentsData[typedKey])
-			}
-		},
-		[]
-	)
+  // Helper to add compliments by key with weight
+  const addComplimentsByKey = useCallback(
+    (compliments: WeightedCompliment[], key: string, weight: number) => {
+      const typedKey = key as keyof typeof complimentsData
+      console.log('Adding compliments for key:', typedKey)
+      if (complimentsData[typedKey]?.length > 0) {
+        const items = complimentsData[typedKey].map(text => ({ text, weight }))
+        console.log('Compliments:', items)
+        compliments.push(...items)
+      }
+    },
+    []
+  )
 
-	// Function to get appropriate compliments based on context
-	const getContextualCompliments = useCallback((): string[] => {
-		const compliments: string[] = []
+  // Function to get appropriate compliments based on context with weights
+  // Priority: 1-year-month-day, 2-month-day, 3-timeofDay, 4-weather day/night, 5-weather, 6-holiday, 7-anytime
+  const getContextualCompliments = useCallback((): WeightedCompliment[] => {
+    const compliments: WeightedCompliment[] = []
 
-		// Add date-based compliments (YYYY-MM-DD with wildcards)
-		const now = new Date()
-		const year = now.getFullYear().toString()
-		const month = (now.getMonth() + 1).toString().padStart(2, '0')
-		const day = now.getDate().toString().padStart(2, '0')
+    // Add date-based compliments (YYYY-MM-DD with wildcards)
+    const now = new Date()
+    const year = now.getFullYear().toString()
+    const month = (now.getMonth() + 1).toString().padStart(2, '0')
+    const day = now.getDate().toString().padStart(2, '0')
 
-		// Check for exact date and wildcarded date patterns
-		addComplimentsByKey(compliments, `${year}-${month}-${day}`)
-		addComplimentsByKey(compliments, `....-${month}-${day}`)
+    // Priority 1: Exact date (highest weight)
+    addComplimentsByKey(compliments, `${year}-${month}-${day}`, 100)
 
-		// Add time-based compliments
-		const timeOfDay = getTimeOfDay()
-		addComplimentsByKey(compliments, timeOfDay)
+    // Priority 2: Month-day pattern
+    addComplimentsByKey(compliments, `....-${month}-${day}`, 80)
 
-		// Add weather-based compliments
-		if (weatherCondition && isDaytime !== undefined) {
-			const dayNightPrefix = isDaytime ? 'day' : 'night'
-			const dayNightKey = `${dayNightPrefix}_${weatherCondition.toLowerCase()}`
-			const weatherKey = weatherCondition.toLowerCase()
+    // Priority 3: Time of day
+    const timeOfDay = getTimeOfDay()
+    addComplimentsByKey(compliments, timeOfDay, 60)
 
-			addComplimentsByKey(compliments, dayNightKey)
-			addComplimentsByKey(compliments, weatherKey)
-		}
+    // Priority 4 & 5: Weather-based compliments
+    if (weatherCondition && isDaytime !== undefined) {
+      const dayNightPrefix = isDaytime ? 'day' : 'night'
+      const dayNightKey = `${dayNightPrefix}_${weatherCondition.toLowerCase()}`
+      const weatherKey = weatherCondition.toLowerCase()
 
-		// Always add anytime compliments
-		addComplimentsByKey(compliments, 'anytime')
-		// console.log('Final compliments list:', compliments)
-		return compliments
-	}, [weatherCondition, isDaytime, getTimeOfDay, addComplimentsByKey])
+      // Priority 4: Weather with day/night
+      addComplimentsByKey(compliments, dayNightKey, 40)
 
-	useEffect(() => {
-		const updateCompliment = () => {
-			setIsVisible(false)
-			setTimeout(() => {
-				const contextualCompliments = getContextualCompliments()
-				setCompliment(getRandomCompliment(contextualCompliments))
-				setIsVisible(true)
-			}, 500)
-		}
+      // Priority 5: Weather only
+      addComplimentsByKey(compliments, weatherKey, 30)
+    }
 
-		const interval = setInterval(
-			updateCompliment,
-			refreshIntervalSeconds * 1000
-		)
+    // Priority 6: Holiday compliments
+    if (isHoliday) {
+      addComplimentsByKey(compliments, 'holiday', 20)
+    }
 
-		return () => {
-			clearInterval(interval)
-		}
-	}, [refreshIntervalSeconds, getContextualCompliments])
+    // Priority 7: Anytime compliments (lowest weight)
+    // Only add if we don't have enough special compliments
+    if (compliments.length < 10) {
+      addComplimentsByKey(compliments, 'anytime', 10)
+    }
+    console.log('Final compliments list:', compliments)
+    return compliments
+  }, [weatherCondition, isDaytime, isHoliday, getTimeOfDay, addComplimentsByKey])
 
-	return (
-		<div
-			className={cn(
-				'flex min-h-[200px] flex-col items-center justify-center p-8 text-center text-shadow-white backdrop-blur-sm',
-				className
-			)}
-		>
-			<p
-				className={cn(
-					'font-light text-lg text-white transition-opacity duration-500 sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl',
-					isVisible ? 'opacity-100' : 'opacity-0'
-				)}
-			>
-				{compliment}
-			</p>
-		</div>
-	)
+  useEffect(() => {
+    const updateCompliment = () => {
+      setIsVisible(false)
+      setTimeout(() => {
+        const contextualCompliments = getContextualCompliments()
+        setCompliment(getWeightedRandomCompliment(contextualCompliments))
+        setIsVisible(true)
+      }, 500)
+    }
+
+    const interval = setInterval(
+      updateCompliment,
+      refreshIntervalSeconds * 1000
+    )
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [refreshIntervalSeconds, getContextualCompliments])
+
+  return (
+    <Widget>
+      <div
+        className="flex min-h-[200px] flex-col items-center justify-center p-8 text-center text-shadow-white backdrop-blur-sm"
+      >
+        <p
+          className={cn(
+            'font-light text-lg text-white transition-opacity duration-500 sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl',
+            isVisible ? 'opacity-100' : 'opacity-0'
+          )}
+        >
+          {compliment}
+        </p>
+      </div>
+    </Widget>
+  )
 }

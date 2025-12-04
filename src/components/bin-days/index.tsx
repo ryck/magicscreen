@@ -1,11 +1,11 @@
 import { addWeeks, format, isSameDay, nextDay, parseISO, startOfDay, subDays } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
+import { Widget } from '../widget'
 import type { BinDaysConfig, CollectionType, HolidayException } from './types'
 import { id } from 'date-fns/locale'
 
 type BinDaysProps = {
   config: BinDaysConfig
-  className?: string
 }
 
 const applyHolidayException = (date: Date, exceptions: HolidayException[] = []): Date => {
@@ -48,7 +48,7 @@ const calculateNextCollection = (
   return applyHolidayException(candidate, holidayExceptions)
 }
 
-export const BinDays = ({ config: widgetConfig, className = '' }: BinDaysProps) => {
+export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
   const { collections, holidayExceptions, refreshIntervalSeconds = 60 * 60 } = widgetConfig
   const [now, setNow] = useState(new Date())
 
@@ -95,53 +95,55 @@ export const BinDays = ({ config: widgetConfig, className = '' }: BinDaysProps) 
   const displayDate = nextCollections[0].displayDate
 
   return (
-    <div className={`flex flex-col items-center justify-center gap-4 p-4 ${className}`} id="bin-days">
-      {/* Header */}
-      <div className="font-light text-white/60 text-lg uppercase tracking-wide">
-        Next bin day
-      </div>
-
-      {/* Date info */}
-      <div className="flex flex-col items-center gap-1">
-        <div className="font-light text-white text-2xl">
-          {format(displayDate, 'EEEE MMM dd')}
+    <Widget>
+      <div className="flex flex-col items-center justify-center gap-4 p-4" id="bin-days">
+        {/* Header */}
+        <div className="font-light text-white/60 text-lg uppercase tracking-wide">
+          Next bin day
         </div>
-        <div className="font-light text-white/60 text-xl">
-          {daysUntil === 0
-            ? 'Tonight'
-            : daysUntil === 1
-              ? 'Tomorrow'
-              : `in ${daysUntil} days`}
-        </div>
-      </div>
 
-      {/* Icons row */}
-      <div className="flex items-center gap-6">
-        {nextCollections.map((collection) => (
-          <div key={collection.name} className="flex flex-col items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={collection.accent}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M10 11v6" />
-              <path d="M14 11v6" />
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-              <path d="M3 6h18" />
-              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-            <div className="font-light text-white/80 text-sm text-center">
-              {collection.name}
-            </div>
+        {/* Date info */}
+        <div className="flex flex-col items-center gap-1">
+          <div className="font-light text-white text-2xl">
+            {format(displayDate, 'EEEE MMM dd')}
           </div>
-        ))}
+          <div className="font-light text-white/60 text-xl">
+            {daysUntil === 0
+              ? 'Tonight'
+              : daysUntil === 1
+                ? 'Tomorrow'
+                : `in ${daysUntil} days`}
+          </div>
+        </div>
+
+        {/* Icons row */}
+        <div className="flex items-center gap-6">
+          {nextCollections.map((collection) => (
+            <div key={collection.name} className="flex flex-col items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={collection.accent}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M10 11v6" />
+                <path d="M14 11v6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                <path d="M3 6h18" />
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              <div className="font-light text-white/80 text-sm text-center">
+                {collection.name}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </Widget>
   )
 }

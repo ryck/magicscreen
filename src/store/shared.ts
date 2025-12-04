@@ -15,6 +15,8 @@ type SharedState = {
 		temperature: number,
 		description: string
 	) => void
+	isHoliday: boolean
+	setIsHoliday: (isHoliday: boolean) => void
 }
 
 export const useSharedStore = create<SharedState>()(
@@ -34,6 +36,13 @@ export const useSharedStore = create<SharedState>()(
 					},
 					false,
 					'setWeather'
+				),
+			isHoliday: false,
+			setIsHoliday: (isHoliday) =>
+				set(
+					{ isHoliday },
+					false,
+					'setIsHoliday'
 				)
 		}),
 		{ name: 'SharedStore' }

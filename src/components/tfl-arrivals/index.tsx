@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { Widget } from '../widget'
 import type { TflArrival, TflArrivalsConfig } from './types'
 
 type TflArrivalsProps = {
   config: TflArrivalsConfig
-  className?: string
 }
 
 function useTflArrivals(config: {
@@ -47,7 +47,7 @@ function formatTimeToStation(seconds: number): string {
   return `${hours}:${remainingMinutes.toString().padStart(2, '0')} hours`
 }
 
-export const TflArrivals = ({ config, className = '' }: TflArrivalsProps) => {
+export const TflArrivals = ({ config }: TflArrivalsProps) => {
   const {
     naptanId,
     stopName = 'Stop',
@@ -62,22 +62,26 @@ export const TflArrivals = ({ config, className = '' }: TflArrivalsProps) => {
 
   if (isLoading) {
     return (
-      <div className={`p-4 ${className}`}>
-        <div className="text-center text-white/60">Loading TfL arrivals...</div>
-      </div>
+      <Widget>
+        <div className="p-4">
+          <div className="text-center text-white/60">Loading TfL arrivals...</div>
+        </div>
+      </Widget>
     )
   }
 
   if (error) {
     return (
-      <div className={`p-4 ${className}`}>
-        <div className="mb-4">
-          <div className="font-medium text-white text-xl">{stopName}</div>
+      <Widget>
+        <div className="p-4">
+          <div className="mb-4">
+            <div className="font-medium text-white text-xl">{stopName}</div>
+          </div>
+          <div className="text-center text-white/60">
+            Failed to load TfL arrivals
+          </div>
         </div>
-        <div className="text-center text-white/60">
-          Failed to load TfL arrivals
-        </div>
-      </div>
+      </Widget>
     )
   }
 
@@ -90,48 +94,52 @@ export const TflArrivals = ({ config, className = '' }: TflArrivalsProps) => {
 
   if (!data || data.length === 0) {
     return (
-      <div className={`p-4 ${className}`}>
-        <div className="mb-4">
-          <div className="font-medium text-white text-xl">{displayStopName}</div>
+      <Widget>
+        <div className="p-4">
+          <div className="mb-4">
+            <div className="font-medium text-white text-xl">{displayStopName}</div>
+          </div>
+          <div className="text-center text-white/60">No arrivals available</div>
         </div>
-        <div className="text-center text-white/60">No arrivals available</div>
-      </div>
+      </Widget>
     )
   }
 
   return (
-    <div className={`p-4 ${className}`}>
-      {/* Header */}
-      <div className="mb-4">
-        <div className="font-medium text-white text-xl">{displayStopName}</div>
-      </div>
+    <Widget>
+      <div className="p-4">
+        {/* Header */}
+        <div className="mb-4">
+          <div className="font-medium text-white text-xl">{displayStopName}</div>
+        </div>
 
-      {/* Arrivals List */}
-      <div className="flex flex-col gap-2">
-        {sortedArrivals.map((arrival) => (
-          <div
-            className="flex items-center justify-between gap-4"
-            key={arrival.id}
-          >
-            <div className="flex min-w-0 flex-1 items-center gap-4">
-              {/* Route Name */}
-              <div className="flex h-8 w-12 shrink-0 items-center justify-center rounded bg-red-600 font-bold text-shadow-white text-sm text-white">
-                {arrival.lineName}
+        {/* Arrivals List */}
+        <div className="flex flex-col gap-2">
+          {sortedArrivals.map((arrival) => (
+            <div
+              className="flex items-center justify-between gap-4"
+              key={arrival.id}
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-4">
+                {/* Route Name */}
+                <div className="flex h-8 w-12 shrink-0 items-center justify-center rounded bg-red-600 font-bold text-shadow-white text-sm text-white">
+                  {arrival.lineName}
+                </div>
+
+                {/* Destination */}
+                <div className="min-w-0 flex-1 truncate text-white">
+                  {arrival.destinationName}
+                </div>
               </div>
 
-              {/* Destination */}
-              <div className="min-w-0 flex-1 truncate text-white">
-                {arrival.destinationName}
+              {/* Time to Station */}
+              <div className="w-20 shrink-0 text-right text-white/70">
+                {formatTimeToStation(arrival.timeToStation)}
               </div>
             </div>
-
-            {/* Time to Station */}
-            <div className="w-20 shrink-0 text-right text-white/70">
-              {formatTimeToStation(arrival.timeToStation)}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </Widget>
   )
 }

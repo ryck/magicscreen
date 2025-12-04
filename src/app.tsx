@@ -1,14 +1,14 @@
-import { Aqi } from './aqi'
-import { BinDays } from './bin-days'
-import { Calendar } from './calendar'
-import { Clock } from './clock'
-import Compliments from './compliments'
-import { HumanizeDuration } from './humanize-duration'
-import { Plex } from './plex'
-import { RealTimeTrains } from './real-time-trains'
-import { TflArrivals } from './tfl-arrivals'
-import { Weather } from './weather'
-import { YearProgress } from './year-progress'
+import { Aqi } from '@/components/aqi'
+import { BinDays } from '@/components/bin-days'
+import { Calendar } from '@/components/calendar'
+import { Clock } from '@/components/clock'
+import Compliments from '@/components/compliments'
+import { HumanizeDuration } from '@/components/humanize-duration'
+import { Plex } from '@/components/plex'
+import { RealTimeTrains } from '@/components/real-time-trains'
+import { TflArrivals } from '@/components/tfl-arrivals'
+import { Weather } from '@/components/weather'
+import { YearProgress } from '@/components/year-progress'
 
 const App = () => (
   <main className="">
@@ -18,13 +18,9 @@ const App = () => (
 
       {/* Row 2, Column 1: Top-left aligned */}
       <div className="flex flex-col items-start justify-start gap-4">
-        <Clock className="w-full xl:w-4/5" />
-        <YearProgress
-          className="w-full xl:w-4/5"
-          config={{ accentColor: 'oklch(68.5% 0.169 237.323)' }}
-        />
+        <Clock />
+        <YearProgress config={{ accentColor: 'oklch(68.5% 0.169 237.323)' }} />
         <HumanizeDuration
-          className="w-full xl:w-4/5"
           config={{
             events: [
               {
@@ -67,7 +63,6 @@ const App = () => (
         />
 
         <Aqi
-          className="w-full xl:w-4/5"
           config={{
             city: 'London',
             apiToken: import.meta.env.VITE_WAQI_API_KEY
@@ -75,7 +70,6 @@ const App = () => (
         />
 
         <TflArrivals
-          className="w-full xl:w-4/5"
           config={{
             naptanId: '490011739N',
             stopName: 'Stanford Way',
@@ -83,7 +77,6 @@ const App = () => (
         />
 
         <Plex
-          className="w-full xl:w-4/5"
           config={{
             baseUrl: 'http://192.168.1.5:32400',
             refreshIntervalSeconds: 30
@@ -91,7 +84,6 @@ const App = () => (
         />
 
         <BinDays
-          className="w-full xl:w-4/5"
           config={{
             collections: [
               {
@@ -148,7 +140,6 @@ const App = () => (
       {/* Row 2, Column 2: Top-right aligned - WeatherWidget */}
       <div className="flex flex-col items-start justify-start gap-4">
         <Weather
-          className="w-full xl:w-4/5"
           config={{
             latitude: 51.40545725179989,
             longitude: -0.14240032490376395
@@ -156,7 +147,6 @@ const App = () => (
         />
 
         <RealTimeTrains
-          className="w-full xl:w-4/5"
           config={{
             originStationCode: 'SRC',
             destinationStationCode: 'VIC'
@@ -164,13 +154,11 @@ const App = () => (
         />
 
         <Calendar
-          className="w-full xl:w-4/5"
           config={{
             holidays: [
               // 2025
               '2025-12-25', // Christmas Day
               '2025-12-26', // Boxing Day
-              '2025-12-04',
               // 2026
               '2026-01-01', // New Year's Day
               '2026-04-03', // Good Friday
@@ -189,7 +177,6 @@ const App = () => (
       {/* Row 4: Full width merged column */}
       <div className="col-span-1 flex items-center justify-center md:col-span-2">
         <Compliments
-          className="w-full"
           config={{ refreshIntervalSeconds: 10 }}
         />
       </div>

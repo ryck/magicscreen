@@ -7,6 +7,7 @@ import {
 	startOfYear
 } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
+import { Widget } from '../widget'
 
 type YearProgressConfig = {
 	year?: boolean
@@ -20,7 +21,6 @@ type YearProgressConfig = {
 
 type YearProgressProps = {
 	config: YearProgressConfig
-	className?: string
 }
 
 type ProgressItem = {
@@ -104,7 +104,7 @@ const calculateProgress = (now: Date): Record<string, ProgressItem> => {
 	}
 }
 
-export const YearProgress = ({ config, className = '' }: YearProgressProps) => {
+export const YearProgress = ({ config }: YearProgressProps) => {
 	const {
 		year = true,
 		month = true,
@@ -166,33 +166,35 @@ export const YearProgress = ({ config, className = '' }: YearProgressProps) => {
 	}
 
 	return (
-		<div className={`flex flex-col gap-2 rounded-3xl p-4 ${className}`}>
-			{items.map((item) => (
-				<div className="flex flex-col gap-2" key={item.label}>
-					<div className="flex items-center gap-3">
-						<span className="w-16 text-right font-light text-white tabular-nums md:w-20 md:text-lg">
-							{item.current}/{item.total}
-						</span>
-						<div
-							className="h-2 flex-1 overflow-hidden rounded-full transition-all duration-500"
-							style={{
-								backgroundColor: `color-mix(in srgb, ${accentColor} 8%, transparent)`
-							}}
-						>
+		<Widget>
+			<div className="flex flex-col gap-2 rounded-3xl p-4">
+				{items.map((item) => (
+					<div className="flex flex-col gap-2" key={item.label}>
+						<div className="flex items-center gap-3">
+							<span className="w-16 text-right font-light text-white tabular-nums md:w-20 md:text-lg">
+								{item.current}/{item.total}
+							</span>
 							<div
-								className="h-full rounded-full bg-linear-to-r transition-all duration-500 ease-out"
+								className="h-2 flex-1 overflow-hidden rounded-full transition-all duration-500"
 								style={{
-									width: `${item.percentage}%`,
-									backgroundImage: `linear-gradient(to right, color-mix(in srgb, ${accentColor} 40%, white), ${accentColor}, color-mix(in srgb, ${accentColor} 85%, white))`
+									backgroundColor: `color-mix(in srgb, ${accentColor} 8%, transparent)`
 								}}
-							/>
+							>
+								<div
+									className="h-full rounded-full bg-linear-to-r transition-all duration-500 ease-out"
+									style={{
+										width: `${item.percentage}%`,
+										backgroundImage: `linear-gradient(to right, color-mix(in srgb, ${accentColor} 40%, white), ${accentColor}, color-mix(in srgb, ${accentColor} 85%, white))`
+									}}
+								/>
+							</div>
+							<span className="w-10 text-right font-light text-white tabular-nums md:w-12 md:text-lg">
+								{Math.round(item.percentage)}%
+							</span>
 						</div>
-						<span className="w-10 text-right font-light text-white tabular-nums md:w-12 md:text-lg">
-							{Math.round(item.percentage)}%
-						</span>
 					</div>
-				</div>
-			))}
-		</div>
+				))}
+			</div>
+		</Widget>
 	)
 }

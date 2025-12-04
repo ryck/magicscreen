@@ -8,19 +8,21 @@ import {
   startOfMonth,
   startOfWeek
 } from 'date-fns'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSharedStore } from '@/store/shared'
 import { cn } from '@/utils'
+import { Widget } from '../widget'
 import type { CalendarConfig } from './types'
 
 type CalendarProps = {
   config?: CalendarConfig
-  className?: string
 }
 
-export const Calendar = ({ config, className = '' }: CalendarProps) => {
+export const Calendar = ({ config }: CalendarProps) => {
   const [now] = useState(new Date())
   const holidays = config?.holidays || []
   const weekStartsOn = config?.weekStartsOn ?? 1
+  const setIsHoliday = useSharedStore((state) => state.setIsHoliday)
 
   const days = useMemo(() => {
     const monthStart = startOfMonth(now)
@@ -56,49 +58,58 @@ export const Calendar = ({ config, className = '' }: CalendarProps) => {
       ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
       : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
+  // Update shared store with today's holiday status
+  useEffect(() => {
+    const todayStr = format(now, 'yyyy-MM-dd')
+    const isTodayHoliday = holidays.includes(todayStr)
+    setIsHoliday(isTodayHoliday)
+  }, [holidays, now, setIsHoliday])
+
   return (
-    <div className={cn('flex flex-col items-start justify-center gap-3 rounded-3xl p-4', className)}>
-      {/* Month and Year */}
-      <div className="font-light text-white text-2xl">{format(now, 'MMMM yyyy')}</div>
+    <Widget>
+      <div className="flex flex-col items-start justify-center gap-3 rounded-3xl p-4">
+        {/* Month and Year */}
+        <div className="font-light text-white text-2xl">{format(now, 'MMMM yyyy')}</div>
 
-      {/* Calendar Grid */}
-      <div className="w-full">
-        {/* Week day headers */}
-        <div className="mb-2 grid grid-cols-7 gap-1">
-          {weekDays.map((day) => (
-            <div
-              key={day}
-              className="flex h-8 w-8 items-center justify-center font-light text-white/40 text-xs uppercase tracking-wide"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Days grid */}
-        <div className="grid grid-cols-7 gap-1">
-          {days.map((day, index) => {
-            const isTodayHoliday = day.isToday && (day.isHoliday || day.isWeekend)
-            const isTodayRegular = day.isToday && !day.isHoliday && !day.isWeekend
-
-            return (
+        {/* Calendar Grid */}
+        <div className="w-full">
+          {/* Week day headers */}
+          <div className="mb-2 grid grid-cols-7 gap-1">
+            {weekDays.map((day) => (
               <div
-                key={index}
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-md text-sm font-light',
-                  isTodayHoliday && 'bg-red-500/40 font-bold text-red-100 is-today-holiday',
-                  isTodayRegular && 'bg-white/20 font-bold text-white is-today-regular',
-                  day.isHoliday && !day.isToday && 'bg-red-500/30 text-red-200 is-holiday-but-not-today',
-                  day.isWeekend && !day.isHoliday && !day.isToday && 'bg-red-500/15 text-red-300 is-weekend-but-not-today-and-not-holiday',
-                  !day.isHoliday && !day.isWeekend && !day.isToday && 'text-white is-not-holiday-and-not-weekend-and-not-today'
-                )}
+                key={day}
+                className="flex h-8 w-8 items-center justify-center font-light text-white/40 text-xs uppercase tracking-wide"
               >
-                {format(day.date, 'd')}
+                {day}
               </div>
-            )
-          })}
+            ))}
+          </div>
+
+          {/* Days grid */}
+          <div className="grid grid-cols-7 gap-1">
+            {days.map((day, index) => {
+              const isTodayHoliday = day.isToday && (day.isHoliday || day.isWeekend)
+              const isTodayRegular = day.isToday && !day.isHoliday && !day.isWeekend
+
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-md text-sm font-light',
+                    isTodayHoliday && 'bg-red-500/40 font-bold text-red-100 is-today-holiday',
+                    isTodayRegular && 'bg-white/20 font-bold text-white is-today-regular',
+                    day.isHoliday && !day.isToday && 'bg-red-500/30 text-red-200 is-holiday-but-not-today',
+                    day.isWeekend && !day.isHoliday && !day.isToday && 'bg-red-500/15 text-red-300 is-weekend-but-not-today-and-not-holiday',
+                    !day.isHoliday && !day.isWeekend && !day.isToday && 'text-white is-not-holiday-and-not-weekend-and-not-today'
+                  )}
+                >
+                  {format(day.date, 'd')}
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </Widget>
   )
 }

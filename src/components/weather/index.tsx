@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
+import { Widget } from '../widget'
 import { useSharedStore } from '@/store/shared'
 import DailyDisplay from './daily-display'
 import HourlyDisplay from './hourly-display'
@@ -25,7 +26,6 @@ type WeatherConfig = {
 
 type WeatherProps = {
   config: WeatherConfig
-  className?: string
 }
 
 type BuildWeatherUrlParams = {
@@ -84,7 +84,7 @@ const useWeatherData = (params: {
   })
 }
 
-export const Weather = ({ config, className = '' }: WeatherProps) => {
+export const Weather = ({ config }: WeatherProps) => {
   const {
     latitude,
     longitude,
@@ -128,23 +128,27 @@ export const Weather = ({ config, className = '' }: WeatherProps) => {
 
   if (isLoading) {
     return (
-      <div className="p-4" id="weather-widget">
-        <p className="text-white/70">Loading weather...</p>
-        <p className="text-white/50 text-xs">
-          Fetching: {latitude}, {longitude}
-        </p>
-      </div>
+      <Widget>
+        <div className="p-4" id="weather-widget">
+          <p className="text-white/70">Loading weather...</p>
+          <p className="text-white/50 text-xs">
+            Fetching: {latitude}, {longitude}
+          </p>
+        </div>
+      </Widget>
     )
   }
 
   if (error || !data) {
     return (
-      <div className="p-4" id="weather-widget">
-        <p className="text-red-400">Failed to load weather</p>
-        <p className="text-white/50 text-xs">
-          {error instanceof Error ? error.message : 'Unknown error'}
-        </p>
-      </div>
+      <Widget>
+        <div className="p-4" id="weather-widget">
+          <p className="text-red-400">Failed to load weather</p>
+          <p className="text-white/50 text-xs">
+            {error instanceof Error ? error.message : 'Unknown error'}
+          </p>
+        </div>
+      </Widget>
     )
   }
 
@@ -158,72 +162,74 @@ export const Weather = ({ config, className = '' }: WeatherProps) => {
   const moonPhase = data.daily[0]?.moon_phase
 
   return (
-    <div className={`rounded-3xl p-4 ${className}`} id="weather-widget">
-      <div className="flex flex-col">
-        {/* First row: wind, humidity, UV/Moon, sunrise/sunset */}
-        <div className="flex items-center justify-between gap-2 text-sm">
-          <WindDisplay speed={windSpeed} unit={unit} />
+    <Widget>
+      <div className="rounded-3xl p-4" id="weather-widget">
+        <div className="flex flex-col">
+          {/* First row: wind, humidity, UV/Moon, sunrise/sunset */}
+          <div className="flex items-center justify-between gap-2 text-sm">
+            <WindDisplay speed={windSpeed} unit={unit} />
 
-          <HumidityDisplay humidity={humidity} />
-          {isDaytime ? (
-            <UvDisplay uvIndex={uvIndex} />
-          ) : (
-            <MoonDisplay moonPhase={moonPhase} />
-          )}
-          <NextSunDisplay
-            sunrise={data.current.sunrise}
-            sunset={data.current.sunset}
-          />
-        </div>
-
-        {/* Second row: large icon and temperature */}
-        <div className="flex items-center justify-center">
-          <div className="flex-1 text-center">
-            <WeatherIcon
-              className="inline-block size-32 lg:size-48"
+            <HumidityDisplay humidity={humidity} />
+            {isDaytime ? (
+              <UvDisplay uvIndex={uvIndex} />
+            ) : (
+              <MoonDisplay moonPhase={moonPhase} />
+            )}
+            <NextSunDisplay
               sunrise={data.current.sunrise}
               sunset={data.current.sunset}
-              weatherId={weatherId}
             />
           </div>
-          <div className="flex-1 text-center">
-            <div className="font-medium text-7xl/5 text-white leading-none lg:text-[9rem]/10">
-              {temperature}°
+
+          {/* Second row: large icon and temperature */}
+          <div className="flex items-center justify-center">
+            <div className="flex-1 text-center">
+              <WeatherIcon
+                className="inline-block size-32 lg:size-48"
+                sunrise={data.current.sunrise}
+                sunset={data.current.sunset}
+                weatherId={weatherId}
+              />
+            </div>
+            <div className="flex-1 text-center">
+              <div className="font-medium text-7xl/5 text-white leading-none lg:text-[9rem]/10">
+                {temperature}°
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Third row: description and feels like */}
-        <div className="-mt-6 flex items-center justify-between text-center text-lg md:text-xl lg:text-2xl">
-          <div className="flex-1 text-white/60 first-letter:capitalize">
-            {weatherDescription}
+          {/* Third row: description and feels like */}
+          <div className="-mt-6 flex items-center justify-between text-center text-lg md:text-xl lg:text-2xl">
+            <div className="flex-1 text-white/60 first-letter:capitalize">
+              {weatherDescription}
+            </div>
+            <div className="flex-1 text-white/60">Feels like {feelsLike}°</div>
           </div>
-          <div className="flex-1 text-white/60">Feels like {feelsLike}°</div>
+
+          {/* Fourth row: hourly forecast */}
+          {hourly && (
+            <HourlyDisplay
+              className="pt-4"
+              hourly={data.hourly}
+              sunrise={data.current.sunrise}
+              sunset={data.current.sunset}
+            />
+          )}
+
+          {/* Fifth row: weekly forecast */}
+          {daily && <DailyDisplay className="pt-4" daily={data.daily} />}
+
+          {/* Sixth row: moon section */}
+          {moon && (
+            <MoonSection
+              className="pt-4"
+              moonPhase={moonPhase}
+              moonrise={data.daily[0]?.moonrise}
+              moonset={data.daily[0]?.moonset}
+            />
+          )}
         </div>
-
-        {/* Fourth row: hourly forecast */}
-        {hourly && (
-          <HourlyDisplay
-            className="pt-4"
-            hourly={data.hourly}
-            sunrise={data.current.sunrise}
-            sunset={data.current.sunset}
-          />
-        )}
-
-        {/* Fifth row: weekly forecast */}
-        {daily && <DailyDisplay className="pt-4" daily={data.daily} />}
-
-        {/* Sixth row: moon section */}
-        {moon && (
-          <MoonSection
-            className="pt-4"
-            moonPhase={moonPhase}
-            moonrise={data.daily[0]?.moonrise}
-            moonset={data.daily[0]?.moonset}
-          />
-        )}
       </div>
-    </div>
+    </Widget>
   )
 }

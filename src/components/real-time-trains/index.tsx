@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { format, parse } from 'date-fns'
+import { Widget } from '../widget'
 import type { RealTimeTrainsConfig, RealTimeTrainsResponse } from './types'
 
 const TIME_FORMAT_HHMM = /^\d{4}$/
 
 type RealTimeTrainsProps = {
   config: RealTimeTrainsConfig
-  className?: string
 }
 
 function useRealTimeTrains(config: {
@@ -140,8 +140,7 @@ function calculateDelay(gbttBooked?: string, realtime?: string): string | null {
 }
 
 export const RealTimeTrains = ({
-  config,
-  className = ''
+  config
 }: RealTimeTrainsProps) => {
   const {
     originStationCode,
@@ -158,21 +157,25 @@ export const RealTimeTrains = ({
 
   if (isLoading) {
     return (
-      <div className={`p-4 ${className}`}>
-        <div className="text-center text-white/60">
-          Loading train information...
+      <Widget>
+        <div className="p-4">
+          <div className="text-center text-white/60">
+            Loading train information...
+          </div>
         </div>
-      </div>
+      </Widget>
     )
   }
 
   if (error) {
     return (
-      <div className={`p-4 ${className}`}>
-        <div className="text-center text-white/60">
-          Failed to load train information
+      <Widget>
+        <div className="p-4">
+          <div className="text-center text-white/60">
+            Failed to load train information
+          </div>
         </div>
-      </div>
+      </Widget>
     )
   }
 
@@ -200,67 +203,71 @@ export const RealTimeTrains = ({
 
   if (services.length === 0) {
     return (
-      <div className={`p-4 ${className}`} id="real-time-trains">
-        <div className="mb-4">
-          <div className="font-light text-lg text-white">
-            {data?.location.name} → {data?.filter.destination.name}
+      <Widget>
+        <div className="p-4" id="real-time-trains">
+          <div className="mb-4">
+            <div className="font-light text-lg text-white">
+              {data?.location.name} → {data?.filter.destination.name}
+            </div>
           </div>
+          <div className="text-center text-white/60">No trains available</div>
         </div>
-        <div className="text-center text-white/60">No trains available</div>
-      </div>
+      </Widget>
     )
   }
 
   return (
-    <div className={`p-4 ${className}`} id='real-time-trains'>
-      <div className="mb-4">
-        <div className="font-medium text-white text-lg">
-          {data?.location.name} → {data?.filter.destination.name}
+    <Widget>
+      <div className="p-4" id='real-time-trains'>
+        <div className="mb-4">
+          <div className="font-medium text-white text-lg">
+            {data?.location.name} → {data?.filter.destination.name}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {services.map((service) => {
+            const departure =
+              service.locationDetail.realtimeDeparture ||
+              service.locationDetail.gbttBookedDeparture
+            const arrival = service.locationDetail.destination[0]?.publicTime
+            const platform = service.locationDetail.platform || '—'
+            const tta = calculateTimeToArrival(departure)
+            const duration = calculateTripDuration(departure, arrival)
+            const delay = calculateDelay(
+              service.locationDetail.gbttBookedDeparture,
+              service.locationDetail.realtimeDeparture
+            )
+
+            return (
+              <div
+                className="flex items-center justify-between gap-4"
+                key={`${service.serviceUid}/${service.runDate}`}
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-4">
+                  <div className="flex h-8 w-12 shrink-0 items-center justify-center rounded bg-green-800 font-bold text-shadow-white text-white text-sm">
+                    {platform}
+                  </div>
+                  <div className="min-w-0 flex-1 truncate text-white">
+                    {formatTime(departure)} → {formatTime(arrival)}
+                    <span className="ml-2 hidden text-sm text-white/60 lg:inline">
+                      ({duration})
+                    </span>
+                    {delay && (
+                      <span className="ml-2 hidden text-red-400 text-xs lg:inline">
+                        {delay}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="w-20 shrink-0 text-right text-white/70">
+                  {tta}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
-
-      <div className="flex flex-col gap-2">
-        {services.map((service) => {
-          const departure =
-            service.locationDetail.realtimeDeparture ||
-            service.locationDetail.gbttBookedDeparture
-          const arrival = service.locationDetail.destination[0]?.publicTime
-          const platform = service.locationDetail.platform || '—'
-          const tta = calculateTimeToArrival(departure)
-          const duration = calculateTripDuration(departure, arrival)
-          const delay = calculateDelay(
-            service.locationDetail.gbttBookedDeparture,
-            service.locationDetail.realtimeDeparture
-          )
-
-          return (
-            <div
-              className="flex items-center justify-between gap-4"
-              key={`${service.serviceUid}/${service.runDate}`}
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-4">
-                <div className="flex h-8 w-12 shrink-0 items-center justify-center rounded bg-green-800 font-bold text-shadow-white text-white text-sm">
-                  {platform}
-                </div>
-                <div className="min-w-0 flex-1 truncate text-white">
-                  {formatTime(departure)} → {formatTime(arrival)}
-                  <span className="ml-2 hidden text-sm text-white/60 lg:inline">
-                    ({duration})
-                  </span>
-                  {delay && (
-                    <span className="ml-2 hidden text-red-400 text-xs lg:inline">
-                      {delay}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="w-20 shrink-0 text-right text-white/70">
-                {tta}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
+    </Widget>
   )
 }

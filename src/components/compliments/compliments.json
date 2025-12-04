@@ -487,135 +487,110 @@
 		"See you tomorrow!",
 		"Sleep tight"
 	],
+	"night": [
+		"Sweet dreams!",
+		"Rest well, you've earned it",
+		"Good night, sleep tight",
+		"Time to recharge for tomorrow",
+		"The stars are shining just for you tonight"
+	],
+	"holiday": [
+		"Happy Holidays!",
+		"Wishing you a joyful holiday season!",
+		"May your holidays be filled with warmth and cheer!",
+		"Enjoy the lazy days of the holiday season!",
+		"Hurray, you don't need to go to work today!",
+		"Hope your holiday is as wonderful as you are!",
+		"May your holiday be merry and bright!"
+	],
 	"ash": [],
 	"day_ash": [],
 	"night_ash": [],
-	"clear": [
-		"Today is a sunny day",
-		"It's a beautiful day",
-		"The sun is shining today!",
-		"It's such a beautiful day",
-		"It's gorgeous outside, go play!"
-	],
+	"clear": ["It's gorgeous outside, go play!"],
 	"day_clear": [
+		"It's such a beautiful day",
+		"The sun is shining today!",
+		"It's a beautiful day",
+		"Today is a sunny day",
 		"It's a bright and sunny day!",
 		"Don't forget your sunglasses!",
 		"It's a beautiful sunny day, enjoy!"
 	],
 	"night_clear": [
-		"Weather forecast for tonight: dark"
+		"Weather forecast for tonight: dark",
+		"It's such a beautiful night",
+		"It's a beautiful night",
+		"Tonight is a clear night",
+		"It's a bright and clear night!",
+		"Don't forget your night vision!",
+		"It's a beautiful clear night, enjoy!"
 	],
 	"clouds": [
 		"It's cloudy out there, but no meatballs",
-		"It may be cloudy, but it's still nice out!",
-		"The sun is hiding right now"
+		"It may be cloudy, but it's still nice out!"
 	],
 	"day_clouds": [
+		"The sun is hiding right now",
 		"It's a bit cloudy today, but still nice out!",
 		"Don't forget your sunglasses, just in case!"
 	],
 	"night_clouds": [
-		"It's a bit cloudy tonight"
+		"It's a bit cloudy tonight",
+		"Enjoy the cloudy night!",
+		"Look at the clouds tonight!",
+		"The clouds are beautiful tonight!",
+		"Don't forget your night vision, just in case!",
+		"It's a bit cloudy tonight, but still nice out!",
+		"Where are the stars tonight?",
+		"Is the moon hiding behind the clouds?"
 	],
-	"drizzle": [
-		"Light rain today, take it easy!",
-		"It's drizzling outside, drive safe!"
-	],
+	"drizzle": ["It's drizzling outside, drive safe!"],
 	"day_drizzle": [
+		"Light rain today, take it easy!",
 		"It's drizzling outside, take your umbrella just in case!",
 		"Light rain today, have a nice day!"
 	],
-	"night_drizzle": [
-		"It's drizzling tonight, stay dry!"
-	],
-	"dust": [
-		"Dusty conditions today, take care!"
-	],
-	"day_dust": [
-		"Dusty conditions today, take care!"
-	],
-	"night_dust": [
-		"Dusty conditions tonight, take care!"
-	],
-	"fog": [
-		"Drive carefully in the fog, visibility is low"
-	],
-	"day_fog": [
-		"Be careful in the fog today"
-	],
-	"night_fog": [
-		"Stay safe in the foggy night"
-	],
-	"haze": [
-		"It's hazy outside, take care!"
-	],
-	"day_haze": [
-		"It's hazy today, take care!"
-	],
-	"night_haze": [
-		"It's hazy tonight, take care!"
-	],
-	"mist": [
-		"It's misty outside, drive carefully!"
-	],
-	"day_mist": [
-		"It's misty today, drive carefully!"
-	],
-	"night_mist": [
-		"It's misty tonight, drive carefully!"
-	],
+	"night_drizzle": ["It's drizzling tonight, stay dry!"],
+	"dust": ["Dusty conditions today, take care!"],
+	"day_dust": ["Dusty conditions today, take care!"],
+	"night_dust": ["Dusty conditions tonight, take care!"],
+	"fog": ["Drive carefully in the fog, visibility is low"],
+	"day_fog": ["Be careful in the fog today"],
+	"night_fog": ["Stay safe in the foggy night"],
+	"haze": ["It's hazy outside, take care!"],
+	"day_haze": ["It's hazy today, take care!"],
+	"night_haze": ["It's hazy tonight, take care!"],
+	"mist": ["It's misty outside, drive carefully!"],
+	"day_mist": ["It's misty today, drive carefully!"],
+	"night_mist": ["It's misty tonight, drive carefully!"],
 	"rain": [
 		"Take your umbrella with you",
 		"It's wet out there, drive safe!",
-		"It's rainy outside, but you brighten my day",
-		"Rainy day, rainy day",
-		"Rain? Shocking!"
-	],
-	"day_rain": [
+		"Rain? In London? Shocking!!!",
 		"Don't forget your umbrella!",
 		"It's rainy out there, stay dry!"
 	],
-	"night_rain": [
-		"It's rainy tonight, stay dry!"
+	"day_rain": [
+		"Rainy day, rainy day",
+		"It's rainy outside, but you brighten my day"
 	],
-	"sand": [
-		"It's sandy outside, take care!"
-	],
-	"day_sand": [
-		"It's sandy today, take care!"
-	],
-	"night_sand": [
-		"It's sandy tonight, take care!"
-	],
-	"smoke": [
-		"It's smoky outside, take care!"
-	],
-	"day_smoke": [
-		"It's smoky today, take care!"
-	],
-	"night_smoke": [
-		"It's smoky tonight, take care!"
-	],
+	"night_rain": ["It's rainy tonight, stay dry!"],
+	"sand": ["It's sandy outside, take care!"],
+	"day_sand": ["It's sandy today, take care!"],
+	"night_sand": ["It's sandy tonight, take care!"],
+	"smoke": ["It's smoky outside, take care!"],
+	"day_smoke": ["It's smoky today, take care!"],
+	"night_smoke": ["It's smoky tonight, take care!"],
 	"snow": [
 		"It's snowy outside, stay warm!",
 		"Snowball battle!",
 		"Let it snow!"
 	],
-	"day_snow": [
-		"It's snowy today, enjoy the winter wonderland!"
-	],
-	"night_snow": [
-		"Snowy night ahead!"
-	],
-	"squall": [
-		"Windy conditions outside, hold onto your hat!"
-	],
-	"day_squall": [
-		"Windy conditions today, hold onto your hat!"
-	],
-	"night_squall": [
-		"Windy conditions tonight, hold onto your hat!"
-	],
+	"day_snow": ["It's snowy today, enjoy the winter wonderland!"],
+	"night_snow": ["Snowy night ahead!"],
+	"squall": ["Windy conditions outside, hold onto your hat!"],
+	"day_squall": ["Windy conditions today, hold onto your hat!"],
+	"night_squall": ["Windy conditions tonight, hold onto your hat!"],
 	"thunderstorm": [
 		"Stormy weather ahead, stay safe!",
 		"Thunderstorms in the area, be cautious!"
@@ -624,30 +599,14 @@
 		"Don't forget your raincoat!",
 		"It's a stormy day, stay safe!"
 	],
-	"night_thunderstorm": [
-		"It's a stormy night, don't be scared"
-	],
-	"tornado": [
-		"Tornado alert! Seek shelter immediately!"
-	],
-	"day_tornado": [
-		"Tornado alert! Seek shelter immediately!"
-	],
-	"night_tornado": [
-		"Tornado alert! Seek shelter immediately!"
-	],
-	"....-12-03": [
-		"Happy testing!"
-	],
-	"....-01-01": [
-		"Happy new year!"
-	],
-	"....-10-31": [
-		"Happy Halloween!"
-	],
-	"....-12-25": [
-		"Happy Christmas!"
-	],
+	"night_thunderstorm": ["It's a stormy night, don't be scared"],
+	"tornado": ["Tornado alert! Seek shelter immediately!"],
+	"day_tornado": ["Tornado alert! Seek shelter immediately!"],
+	"night_tornado": ["Tornado alert! Seek shelter immediately!"],
+	"....-12-03": ["Happy testing!"],
+	"....-01-01": ["Happy new year!"],
+	"....-10-31": ["Happy Halloween!"],
+	"....-12-25": ["Happy Christmas!"],
 	"....-10-15": [
 		"Happy birthday Rick!",
 		"Feliz cumpleaños Rick!",

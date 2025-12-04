@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
+import { Widget } from '../widget'
 
 type AqiWidgetConfig = {
 	city: string
@@ -9,7 +10,6 @@ type AqiWidgetConfig = {
 
 type AqiWidgetProps = {
 	config: AqiWidgetConfig
-	className?: string
 }
 
 type WaqiResponse = {
@@ -164,7 +164,7 @@ const useAqiData = (params: {
 	})
 }
 
-export const Aqi = ({ config, className = '' }: AqiWidgetProps) => {
+export const Aqi = ({ config }: AqiWidgetProps) => {
 	const { city, apiToken, refreshIntervalSeconds = 5 * 60 } = config
 
 	const { data, isLoading, error } = useAqiData({
@@ -194,20 +194,24 @@ export const Aqi = ({ config, className = '' }: AqiWidgetProps) => {
 
 	if (isLoading) {
 		return (
-			<div className={`${className}`} id="aqi-widget">
-				<p className="text-white/70">Loading AQI data...</p>
-			</div>
+			<Widget>
+				<div id="aqi-widget">
+					<p className="text-white/70">Loading AQI data...</p>
+				</div>
+			</Widget>
 		)
 	}
 
 	if (error || !data || data.status !== 'ok') {
 		return (
-			<div className={`${className}`} id="aqi-widget">
-				<p className="text-red-400">Failed to load AQI data</p>
-				<p className="text-white/50 text-xs">
-					{error instanceof Error ? error.message : 'Unknown error'}
-				</p>
-			</div>
+			<Widget>
+				<div id="aqi-widget">
+					<p className="text-red-400">Failed to load AQI data</p>
+					<p className="text-white/50 text-xs">
+						{error instanceof Error ? error.message : 'Unknown error'}
+					</p>
+				</div>
+			</Widget>
 		)
 	}
 
@@ -217,38 +221,40 @@ export const Aqi = ({ config, className = '' }: AqiWidgetProps) => {
 	const aqiLabel = getAqiLabel(aqi)
 
 	return (
-		<div className={`flex flex-col gap-2 p-4 ${className}`} id="aqi-widget">
-			{/* Header with city name and overall AQI */}
-			<div className="flex items-center justify-between pb-4">
-				<div className="font-light text-lg text-white md:text-xl">
-					{cityName}
-				</div>
-				<div className="flex flex-col items-center gap-1">
-					<div className={`font-bold text-xl md:text-2xl ${aqiColor}`}>
-						{aqiLabel}
+		<Widget>
+			<div className="flex flex-col gap-2 p-4" id="aqi-widget">
+				{/* Header with city name and overall AQI */}
+				<div className="flex items-center justify-between pb-4">
+					<div className="font-light text-lg text-white md:text-xl">
+						{cityName}
+					</div>
+					<div className="flex flex-col items-center gap-1">
+						<div className={`font-bold text-xl md:text-2xl ${aqiColor}`}>
+							{aqiLabel}
+						</div>
 					</div>
 				</div>
-			</div>
 
-			{/* Individual pollutants */}
-			<div className="grid grid-cols-6 gap-4">
-				{sortedPollutants.map((pollutant) => {
-					const color = getAqiColor(pollutant.value)
-					return (
-						<div
-							className="flex flex-col items-center gap-0"
-							key={pollutant.key}
-						>
-							<span className={`font-medium text-2xl md:text-2xl ${color}`}>
-								{pollutant.value}
-							</span>
-							<span className="text-sm text-white/40">
-								{getPollutantLabel(pollutant.key, pollutant.label)}
-							</span>
-						</div>
-					)
-				})}
+				{/* Individual pollutants */}
+				<div className="grid grid-cols-6 gap-4">
+					{sortedPollutants.map((pollutant) => {
+						const color = getAqiColor(pollutant.value)
+						return (
+							<div
+								className="flex flex-col items-center gap-0"
+								key={pollutant.key}
+							>
+								<span className={`font-medium text-2xl md:text-2xl ${color}`}>
+									{pollutant.value}
+								</span>
+								<span className="text-sm text-white/40">
+									{getPollutantLabel(pollutant.key, pollutant.label)}
+								</span>
+							</div>
+						)
+					})}
+				</div>
 			</div>
-		</div>
+		</Widget>
 	)
 }
