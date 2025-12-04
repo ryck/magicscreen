@@ -1,0 +1,35 @@
+services:
+  magicscreen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: magicscreen
+    restart: unless-stopped
+    ports:
+      - '3002:3001' # Server serves both API and static files
+    environment:
+      - NODE_ENV=production
+      - PROXY_PORT=3001
+    volumes:
+      # Mount .env.local file for API credentials
+      - ./.env:/app/.env:ro
+    networks:
+      - magicscreen-network
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--quiet',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3001/health'
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  magicscreen-network:
+    driver: bridge

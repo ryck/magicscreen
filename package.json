@@ -1,7 +1,7 @@
 {
-	"name": "react-vite-modern-tooling-template",
+	"name": "magicscreen",
 	"description": "MagicScreen - Like a modern MagicMirror, but without the mirror...",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"private": true,
 	"type": "module",
 	"author": {
@@ -37,7 +37,9 @@
 		"dev:client": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-		"serve": "vite preview",
+		"serve": "vite preview --port 5173 --host 0.0.0.0",
+		"start:server": "node --import tsx/esm server/index.ts",
+		"start": "concurrently \"pnpm run start:server\" \"pnpm run serve\"",
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
 		"test:watch": "vitest watch",

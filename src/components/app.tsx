@@ -94,9 +94,8 @@ const App = () => (
         <Weather
           className="w-full xl:w-4/5"
           config={{
-            apiKey: import.meta.env.VITE_OPENWEATHER_API_KEY,
-            latitude: import.meta.env.VITE_LATITUDE,
-            longitude: import.meta.env.VITE_LONGITUDE
+            latitude: 51.40545725179989,
+            longitude: -0.14240032490376395
           }}
         />
 

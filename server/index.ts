@@ -1,6 +1,11 @@
 import cors from 'cors'
 import dotenv from 'dotenv'
 import express, { type Request, type Response } from 'express'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 // Load environment variables in order of precedence
 dotenv.config({ path: '.env.local', quiet: true })
@@ -8,9 +13,17 @@ dotenv.config({ path: '.env', quiet: true })
 
 const app = express()
 const PORT = process.env.PROXY_PORT || 3001
+const isProduction = process.env.NODE_ENV === 'production'
 
 app.use(cors())
 app.use(express.json())
+
+// Serve static files in production
+if (isProduction) {
+	const distPath = path.join(__dirname, '..', 'dist')
+	console.log(`📁 Serving static files from: ${distPath}`)
+	app.use(express.static(distPath))
+}
 
 // Request logging middleware
 app.use((req: Request, _res: Response, next) => {
@@ -158,6 +171,18 @@ app.get('/api/tfl/*splat', async (req: Request, res: Response) => {
 		res.status(500).json({ error: 'Failed to fetch from TfL API' })
 	}
 })
+
+// Health check endpoint for Docker
+app.get('/health', (_req: Request, res: Response) => {
+	res.status(200).json({ status: 'ok' })
+})
+
+// Serve index.html for all other routes (SPA fallback) in production
+if (isProduction) {
+	app.get('/*splat', (_req: Request, res: Response) => {
+		res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'))
+	})
+}
 
 app.listen(PORT, () => {
 	console.log(`🚀 Proxy server running on http://localhost:${PORT}`)
