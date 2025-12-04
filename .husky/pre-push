@@ -1,0 +1,12 @@
+# Run comprehensive checks before pushing
+echo "🚀 Running pre-push checks..."
+
+# Run full validation pipeline
+echo "🔍 Running full validation..."
+pnpm validate || exit 1
+
+# Run E2E tests on critical browsers
+echo "🎭 Running E2E tests..."
+pnpm test:e2e:desktop || exit 1
+
+echo "✅ Pre-push checks passed! Ready to push."

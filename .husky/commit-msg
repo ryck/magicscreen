@@ -1,0 +1,27 @@
+# # Check commit message format
+# echo "📝 Validating commit message format..."
+
+# # Read the commit message
+# commit_message=$(cat "$1")
+
+# # Define the pattern for conventional commits
+# # Pattern: type(scope): description
+# # Types: feat, fix, docs, style, refactor, test, chore
+# conventional_commit_regex='^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}'
+
+# if echo "$commit_message" | grep -qE "$conventional_commit_regex"; then
+#     echo "✅ Commit message follows conventional format!"
+# else
+#     echo "❌ Commit message does not follow conventional commit format!"
+#     echo ""
+#     echo "Expected format: type(scope): description"
+#     echo ""
+#     echo "Types: feat, fix, docs, style, refactor, test, chore"
+#     echo "Examples:"
+#     echo "  feat: add new component"
+#     echo "  fix(api): resolve timeout issue"
+#     echo "  docs: update README"
+#     echo ""
+#     echo "Your message: $commit_message"
+#     exit 1
+# fi

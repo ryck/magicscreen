@@ -1,0 +1,16 @@
+# Run lint-staged for fast, targeted checks on changed files
+echo "🔍 Running pre-commit checks..."
+
+# Lint and format only staged files
+echo "� Linting and formatting staged files..."
+pnpm lint-staged || exit 1
+
+# Check TypeScript types (still check all files for type safety)
+echo "� Checking TypeScript types..."
+pnpm typecheck || exit 1
+
+# Run unit tests
+echo "🧪 Running unit tests..."
+pnpm test || exit 1
+
+echo "✅ Pre-commit checks passed!"
