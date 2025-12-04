@@ -1,4 +1,6 @@
 import { Aqi } from './aqi'
+import { BinDays } from './bin-days'
+import { Calendar } from './calendar'
 import { Clock } from './clock'
 import Compliments from './compliments'
 import { HumanizeDuration } from './humanize-duration'
@@ -87,6 +89,60 @@ const App = () => (
             refreshIntervalSeconds: 30
           }}
         />
+
+        <BinDays
+          className="w-full xl:w-4/5"
+          config={{
+            collections: [
+              {
+                name: 'Food',
+                dayOfWeek: 3,
+                frequency: 'weekly',
+                weekOffset: 0,
+                referenceDate: '2024-12-03',
+                accent: 'oklch(66.6% 0.179 58.318)'
+              },
+              {
+                name: 'Recycling',
+                dayOfWeek: 3,
+                frequency: 'biweekly',
+                weekOffset: 0,
+                referenceDate: '2024-12-03',
+                accent: 'oklch(72.3% 0.219 149.579)'
+              },
+              {
+                name: 'Paper',
+                dayOfWeek: 3,
+                frequency: 'biweekly',
+                weekOffset: 1,
+                referenceDate: '2024-12-03',
+                accent: 'oklch(54.6% 0.245 262.881)'
+              },
+              {
+                name: 'General',
+                dayOfWeek: 3,
+                frequency: 'biweekly',
+                weekOffset: 1,
+                referenceDate: '2024-12-03',
+                accent: 'oklch(87% 0 0)'
+              }
+            ],
+            holidayExceptions: [
+              { originalDate: '2025-12-25', revisedDate: '2025-12-27' },
+              { originalDate: '2025-12-26', revisedDate: '2025-12-29' },
+              { originalDate: '2025-12-29', revisedDate: '2025-12-30' },
+              { originalDate: '2025-12-30', revisedDate: '2025-12-31' },
+              { originalDate: '2025-12-31', revisedDate: '2026-01-02' },
+              { originalDate: '2026-01-01', revisedDate: '2026-01-03' },
+              { originalDate: '2026-01-02', revisedDate: '2026-01-05' },
+              { originalDate: '2026-01-05', revisedDate: '2026-01-06' },
+              { originalDate: '2026-01-06', revisedDate: '2026-01-07' },
+              { originalDate: '2026-01-07', revisedDate: '2026-01-08' },
+              { originalDate: '2026-01-08', revisedDate: '2026-01-09' },
+              { originalDate: '2026-01-09', revisedDate: '2026-01-10' }
+            ],
+          }}
+        />
       </div>
 
       {/* Row 2, Column 2: Top-right aligned - WeatherWidget */}
@@ -106,6 +162,28 @@ const App = () => (
             destinationStationCode: 'VIC'
           }}
         />
+
+        <Calendar
+          className="w-full xl:w-4/5"
+          config={{
+            holidays: [
+              // 2025
+              '2025-12-25', // Christmas Day
+              '2025-12-26', // Boxing Day
+              '2025-12-04',
+              // 2026
+              '2026-01-01', // New Year's Day
+              '2026-04-03', // Good Friday
+              '2026-04-06', // Easter Monday
+              '2026-05-04', // Early May Bank Holiday
+              '2026-05-25', // Spring Bank Holiday
+              '2026-08-31', // Summer Bank Holiday
+              '2026-12-25', // Christmas Day
+              '2026-12-28'  // Boxing Day (substitute, as 26th is Saturday)
+            ]
+          }}
+        />
+
       </div>
 
       {/* Row 4: Full width merged column */}
