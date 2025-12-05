@@ -12,6 +12,7 @@ type WeatherIconProps = {
 	sunrise: number
 	sunset: number
 	className?: string
+	iconType?: 'animated' | 'static'
 }
 
 // Weather IDs that have day/night variants
@@ -224,7 +225,8 @@ export default function WeatherIcon({
 	weatherId,
 	sunrise,
 	sunset,
-	className = ''
+	className = '',
+	iconType = 'animated'
 }: WeatherIconProps) {
 	// Determine if it's daytime
 	const isDaytime = useMemo(() => {
@@ -238,11 +240,11 @@ export default function WeatherIcon({
 		() =>
 			lazy(
 				() =>
-					import(`./weather-icons/${iconName}.svg?react`) as Promise<{
+					import(`./weather-icons/${iconType}/${iconName}.svg?react`) as Promise<{
 						default: ComponentType<SVGProps<SVGSVGElement>>
 					}>
 			),
-		[iconName]
+		[iconName, iconType]
 	)
 
 	return (

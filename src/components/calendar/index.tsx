@@ -63,10 +63,13 @@ export const Calendar = ({ config }: CalendarProps) => {
       })
   }, [now, holidays, weekStartsOn])
 
-  const weekDays =
-    weekStartsOn === 0
-      ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-      : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const weekDays = useMemo(
+    () =>
+      weekStartsOn === 0
+        ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    [weekStartsOn]
+  )
 
   // Update shared store with today's holiday status
   useEffect(() => {

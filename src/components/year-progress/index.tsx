@@ -138,6 +138,20 @@ export const YearProgress = ({ config }: YearProgressProps) => {
 
 	const progress = useMemo(() => calculateProgress(now), [now])
 
+	// Memoize style objects to avoid recreation
+	const backgroundStyle = useMemo(
+		() => ({
+			backgroundColor: `color-mix(in srgb, ${accentColor} 8%, transparent)`
+		}),
+		[accentColor]
+	)
+
+	const progressGradient = useMemo(
+		() =>
+			`linear-gradient(to right, color-mix(in srgb, ${accentColor} 40%, white), ${accentColor}, color-mix(in srgb, ${accentColor} 85%, white))`,
+		[accentColor]
+	)
+
 	const items = useMemo(() => {
 		const result: ProgressItem[] = []
 		if (year) {
@@ -176,15 +190,13 @@ export const YearProgress = ({ config }: YearProgressProps) => {
 							</span>
 							<div
 								className="h-2 flex-1 overflow-hidden rounded-full transition-all duration-500"
-								style={{
-									backgroundColor: `color-mix(in srgb, ${accentColor} 8%, transparent)`
-								}}
+								style={backgroundStyle}
 							>
 								<div
 									className="h-full rounded-full bg-linear-to-r transition-all duration-500 ease-out"
 									style={{
 										width: `${item.percentage}%`,
-										backgroundImage: `linear-gradient(to right, color-mix(in srgb, ${accentColor} 40%, white), ${accentColor}, color-mix(in srgb, ${accentColor} 85%, white))`
+										backgroundImage: progressGradient
 									}}
 								/>
 							</div>

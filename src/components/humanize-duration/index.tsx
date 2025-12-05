@@ -14,7 +14,7 @@ type HumanizeDurationOptions = {
 }
 
 type DurationEvent = {
-  date: Date
+  date: string
   title: string
   options?: HumanizeDurationOptions
 }
@@ -28,10 +28,21 @@ type HumanizeDurationProps = {
   config: HumanizeDurationConfig
 }
 
+const DATE_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric'
+}
+
+const TIME_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit'
+}
+
 export const HumanizeDuration = ({
   config: widgetConfig
 }: HumanizeDurationProps) => {
-  const { events, refreshIntervalSeconds = 1 } = widgetConfig
+  const { events, refreshIntervalSeconds = 60 } = widgetConfig
 
   const [now, setNow] = useState(new Date())
 
@@ -46,7 +57,8 @@ export const HumanizeDuration = ({
   const eventData = useMemo(
     () =>
       events.map((event) => {
-        const eventTime = event.date.getTime()
+        const eventDate = new Date(event.date)
+        const eventTime = eventDate.getTime()
         const currentTime = now.getTime()
         const diff = eventTime - currentTime
 
@@ -60,15 +72,8 @@ export const HumanizeDuration = ({
 
         return {
           title: event.title,
-          date: event.date.toLocaleDateString(config.locale, {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          }),
-          time: event.date.toLocaleTimeString(config.locale, {
-            hour: '2-digit',
-            minute: '2-digit'
-          }),
+          date: eventDate.toLocaleDateString(config.locale, DATE_FORMAT_OPTIONS),
+          time: eventDate.toLocaleTimeString(config.locale, TIME_FORMAT_OPTIONS),
           humanized: `${humanized}`
         }
       }),

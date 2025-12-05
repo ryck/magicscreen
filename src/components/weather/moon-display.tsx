@@ -1,14 +1,14 @@
 import {
-	type ComponentType,
-	lazy,
-	Suspense,
-	type SVGProps,
-	useMemo
+  type ComponentType,
+  lazy,
+  Suspense,
+  type SVGProps,
+  useMemo
 } from 'react'
 
 type MoonDisplayProps = {
-	moonPhase: number
-	className?: string
+  moonPhase: number
+  className?: string
 }
 
 /**
@@ -25,70 +25,70 @@ type MoonDisplayProps = {
  * - 0.75-1: Waning Crescent
  */
 const getMoonIconName = (phase: number): string => {
-	// Normalize phase to 0-1 range
-	const normalizedPhase = phase % 1
+  // Normalize phase to 0-1 range
+  const normalizedPhase = phase % 1
 
-	// New Moon (0 or very close to 1)
-	if (normalizedPhase < 0.03 || normalizedPhase > 0.97) {
-		return 'moon-new'
-	}
+  // New Moon (0 or very close to 1)
+  if (normalizedPhase < 0.03 || normalizedPhase > 0.97) {
+    return 'moon-new'
+  }
 
-	// Waxing Crescent (0 to 0.25)
-	if (normalizedPhase < 0.22) {
-		return 'moon-waxing-crescent'
-	}
+  // Waxing Crescent (0 to 0.25)
+  if (normalizedPhase < 0.22) {
+    return 'moon-waxing-crescent'
+  }
 
-	// First Quarter (0.25)
-	if (normalizedPhase >= 0.22 && normalizedPhase < 0.28) {
-		return 'moon-first-quarter'
-	}
+  // First Quarter (0.25)
+  if (normalizedPhase >= 0.22 && normalizedPhase < 0.28) {
+    return 'moon-first-quarter'
+  }
 
-	// Waxing Gibbous (0.25 to 0.5)
-	if (normalizedPhase < 0.47) {
-		return 'moon-waxing-gibbous'
-	}
+  // Waxing Gibbous (0.25 to 0.5)
+  if (normalizedPhase < 0.47) {
+    return 'moon-waxing-gibbous'
+  }
 
-	// Full Moon (0.5)
-	if (normalizedPhase >= 0.47 && normalizedPhase < 0.53) {
-		return 'moon-full'
-	}
+  // Full Moon (0.5)
+  if (normalizedPhase >= 0.47 && normalizedPhase < 0.53) {
+    return 'moon-full'
+  }
 
-	// Waning Gibbous (0.5 to 0.75)
-	if (normalizedPhase < 0.72) {
-		return 'moon-waning-gibbous'
-	}
+  // Waning Gibbous (0.5 to 0.75)
+  if (normalizedPhase < 0.72) {
+    return 'moon-waning-gibbous'
+  }
 
-	// Last Quarter / Third Quarter (0.75)
-	if (normalizedPhase >= 0.72 && normalizedPhase < 0.78) {
-		return 'moon-last-quarter'
-	}
+  // Last Quarter / Third Quarter (0.75)
+  if (normalizedPhase >= 0.72 && normalizedPhase < 0.78) {
+    return 'moon-last-quarter'
+  }
 
-	// Waning Crescent (0.75 to 1)
-	return 'moon-waning-crescent'
+  // Waning Crescent (0.75 to 1)
+  return 'moon-waning-crescent'
 }
 
 export default function MoonDisplay({
-	moonPhase,
-	className = ''
+  moonPhase,
+  className = ''
 }: MoonDisplayProps) {
-	const iconName = getMoonIconName(moonPhase)
+  const iconName = getMoonIconName(moonPhase)
 
-	const Icon = useMemo<ComponentType<SVGProps<SVGSVGElement>>>(
-		() =>
-			lazy(
-				() =>
-					import(`./weather-icons/${iconName}.svg?react`) as Promise<{
-						default: ComponentType<SVGProps<SVGSVGElement>>
-					}>
-			),
-		[iconName]
-	)
+  const Icon = useMemo<ComponentType<SVGProps<SVGSVGElement>>>(
+    () =>
+      lazy(
+        () =>
+          import(`./weather-icons/static/${iconName}.svg?react`) as Promise<{
+            default: ComponentType<SVGProps<SVGSVGElement>>
+          }>
+      ),
+    [iconName]
+  )
 
-	return (
-		<div className={`flex items-center justify-center ${className}`}>
-			<Suspense fallback={<div className="h-16 w-16" />}>
-				<Icon className="size-12 text-white md:size-18 lg:size-20" />
-			</Suspense>
-		</div>
-	)
+  return (
+    <div className={`flex items-center justify-center ${className}`}>
+      <Suspense fallback={<div className="h-16 w-16" />}>
+        <Icon className="size-12 text-white md:size-18 lg:size-20" />
+      </Suspense>
+    </div>
+  )
 }

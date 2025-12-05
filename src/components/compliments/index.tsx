@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Widget } from '../widget'
 import { useSharedStore } from '@/store/shared'
 import { cn } from '@/utils'
@@ -30,7 +30,6 @@ function getWeightedRandomCompliment(compliments: WeightedCompliment[]): string 
       return compliment.text
     }
   }
-
   // Fallback (should never reach here)
   return compliments[0].text
 }
@@ -49,6 +48,7 @@ export default function Compliments({
     getWeightedRandomCompliment([{ text: complimentsData.anytime[0] || 'Welcome!', weight: 1 }])
   )
   const [isVisible, setIsVisible] = useState(true)
+  const timeoutRef = useRef<number | null>(null)
 
   // Get time of day
   const getTimeOfDay = useCallback((): 'morning' | 'afternoon' | 'evening' | 'night' => {
@@ -79,16 +79,22 @@ export default function Compliments({
     []
   )
 
+  // Memoize date strings to avoid recalculation on every render
+  const dateStrings = useMemo(() => {
+    const now = new Date()
+    return {
+      year: now.getFullYear().toString(),
+      month: (now.getMonth() + 1).toString().padStart(2, '0'),
+      day: now.getDate().toString().padStart(2, '0')
+    }
+  }, []) // Empty deps - only calculate once per component mount
+
   // Function to get appropriate compliments based on context with weights
   // Priority: 1-year-month-day, 2-month-day, 3-timeofDay, 4-weather day/night, 5-weather, 6-holiday, 7-anytime
   const getContextualCompliments = useCallback((): WeightedCompliment[] => {
     const compliments: WeightedCompliment[] = []
 
-    // Add date-based compliments (YYYY-MM-DD with wildcards)
-    const now = new Date()
-    const year = now.getFullYear().toString()
-    const month = (now.getMonth() + 1).toString().padStart(2, '0')
-    const day = now.getDate().toString().padStart(2, '0')
+    const { year, month, day } = dateStrings
 
     // Priority 1: Exact date (highest weight)
     addComplimentsByKey(compliments, `${year}-${month}-${day}`, 100)
@@ -125,17 +131,27 @@ export default function Compliments({
     }
     // console.log('Final compliments list:', compliments)
     return compliments
-  }, [weatherCondition, isDaytime, isHoliday, getTimeOfDay, addComplimentsByKey])
+  }, [weatherCondition, isDaytime, isHoliday, getTimeOfDay, addComplimentsByKey, dateStrings])
 
   useEffect(() => {
     const updateCompliment = () => {
       setIsVisible(false)
-      setTimeout(() => {
+
+      // Clear any existing timeout
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current)
+      }
+
+      timeoutRef.current = setTimeout(() => {
         const contextualCompliments = getContextualCompliments()
         setCompliment(getWeightedRandomCompliment(contextualCompliments))
         setIsVisible(true)
+        timeoutRef.current = null
       }, 500)
     }
+
+    // Update compliment immediately on mount
+    updateCompliment()
 
     const interval = setInterval(
       updateCompliment,
@@ -144,6 +160,9 @@ export default function Compliments({
 
     return () => {
       clearInterval(interval)
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current)
+      }
     }
   }, [refreshIntervalSeconds, getContextualCompliments])
 

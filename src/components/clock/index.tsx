@@ -2,6 +2,13 @@ import { useEffect, useState } from 'react'
 import { config } from '@/config'
 import { Widget } from '../widget'
 
+const DATE_OPTIONS: Intl.DateTimeFormatOptions = {
+  weekday: 'short',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric'
+}
+
 export const Clock = () => {
   const [now, setNow] = useState(new Date())
 
@@ -13,14 +20,7 @@ export const Clock = () => {
     return () => clearInterval(interval)
   }, [])
 
-  const dateOptions: Intl.DateTimeFormatOptions = {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  }
-
-  const dateString = now.toLocaleDateString(config.locale, dateOptions)
+  const dateString = now.toLocaleDateString(config.locale, DATE_OPTIONS)
 
   const hours = String(now.getHours()).padStart(2, '0')
   const minutes = String(now.getMinutes()).padStart(2, '0')

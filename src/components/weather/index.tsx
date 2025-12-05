@@ -116,18 +116,32 @@ export const Weather = ({ config }: WeatherProps) => {
     return now >= data.current.sunrise && now < data.current.sunset
   }, [data])
 
+  // Memoize weather data calculations (must be before conditional returns)
+  const weatherData = useMemo(() => {
+    if (!data) {
+      return null
+    }
+    return {
+      weatherId: data.current.weather[0]?.id as WeatherId,
+      weatherDescription: data.current.weather[0]?.description ?? 'N/A',
+      weatherCondition: data.current.weather[0]?.main.toLowerCase() ?? 'anytime',
+      temperature: Math.round(data.current.temp),
+      feelsLike: Math.round(data.current.feels_like),
+      humidity: data.current.humidity,
+      windSpeed: data.current.wind_speed,
+      uvIndex: data.current.uvi,
+      moonPhase: data.daily[0]?.moon_phase
+    }
+  }, [data])
+
   // Update shared store when weather data changes
   const setWeather = useSharedStore((state) => state.setWeather)
 
   useEffect(() => {
-    if (data) {
-      const condition = data.current.weather[0]?.main.toLowerCase() ?? 'anytime'
-      const description = data.current.weather[0]?.description ?? 'N/A'
-      const temperature = Math.round(data.current.temp)
-
-      setWeather(condition, isDaytime, temperature, description)
+    if (weatherData) {
+      setWeather(weatherData.weatherCondition, isDaytime, weatherData.temperature, weatherData.weatherDescription)
     }
-  }, [data, isDaytime, setWeather])
+  }, [weatherData, isDaytime, setWeather])
 
   if (isLoading) {
     return (
@@ -142,7 +156,7 @@ export const Weather = ({ config }: WeatherProps) => {
     )
   }
 
-  if (error || !data) {
+  if (error || !data || !weatherData) {
     return (
       <Widget>
         <div className="p-4" id="weather-widget">
@@ -155,32 +169,24 @@ export const Weather = ({ config }: WeatherProps) => {
     )
   }
 
-  const weatherId = data.current.weather[0]?.id as WeatherId
-  const weatherDescription = data.current.weather[0]?.description ?? 'N/A'
-  const temperature = Math.round(data.current.temp)
-  const feelsLike = Math.round(data.current.feels_like)
-  const humidity = data.current.humidity
-  const windSpeed = data.current.wind_speed
-  const uvIndex = data.current.uvi
-  const moonPhase = data.daily[0]?.moon_phase
-
   return (
     <Widget>
       <div className="rounded-3xl p-4" id="weather-widget">
         <div className="flex flex-col">
           {/* First row: wind, humidity, UV/Moon, sunrise/sunset */}
           <div className="flex items-center justify-between gap-2 text-sm">
-            <WindDisplay speed={windSpeed} unit={unit} />
+            <WindDisplay speed={weatherData.windSpeed} unit={unit} />
 
-            <HumidityDisplay humidity={humidity} />
+            <HumidityDisplay humidity={weatherData.humidity} />
             {isDaytime ? (
-              <UvDisplay uvIndex={uvIndex} />
+              <UvDisplay uvIndex={weatherData.uvIndex} />
             ) : (
-              <MoonDisplay moonPhase={moonPhase} />
+              <MoonDisplay moonPhase={weatherData.moonPhase} />
             )}
             <NextSunDisplay
               sunrise={data.current.sunrise}
               sunset={data.current.sunset}
+              iconType='static'
             />
           </div>
 
@@ -191,12 +197,12 @@ export const Weather = ({ config }: WeatherProps) => {
                 className="inline-block size-32 lg:size-48"
                 sunrise={data.current.sunrise}
                 sunset={data.current.sunset}
-                weatherId={weatherId}
+                weatherId={weatherData.weatherId}
               />
             </div>
             <div className="flex-1 text-center">
               <div className="font-medium text-7xl/5 text-white leading-none lg:text-[9rem]/10">
-                {temperature}°
+                {weatherData.temperature}°
               </div>
             </div>
           </div>
@@ -204,9 +210,9 @@ export const Weather = ({ config }: WeatherProps) => {
           {/* Third row: description and feels like */}
           <div className="-mt-6 flex items-center justify-between text-center text-lg md:text-xl lg:text-2xl">
             <div className="flex-1 text-white/60 first-letter:capitalize">
-              {weatherDescription}
+              {weatherData.weatherDescription}
             </div>
-            <div className="flex-1 text-white/60">Feels like {feelsLike}°</div>
+            <div className="flex-1 text-white/60">Feels like {weatherData.feelsLike}°</div>
           </div>
 
           {/* Fourth row: hourly forecast */}
@@ -226,7 +232,7 @@ export const Weather = ({ config }: WeatherProps) => {
           {moon && (
             <MoonSection
               className="pt-4"
-              moonPhase={moonPhase}
+              moonPhase={weatherData.moonPhase}
               moonrise={data.daily[0]?.moonrise}
               moonset={data.daily[0]?.moonset}
             />

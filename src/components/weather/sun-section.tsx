@@ -1,4 +1,4 @@
-import { type ComponentType, lazy, Suspense, type SVGProps, useMemo } from 'react'
+import { type ComponentType, lazy, Suspense, type SVGProps, useMemo, useState, useEffect } from 'react'
 import { config } from '@/config'
 
 type SunSectionProps = {
@@ -116,16 +116,30 @@ export default function SunSection({
   sunset,
   className = ''
 }: SunSectionProps) {
-  const sunriseTime = formatTime(sunrise)
-  const sunsetTime = formatTime(sunset)
-  const nextEvent = getNextSunEvent(sunrise, sunset)
-  const { sunrisePercent, sunsetPercent, currentPercent, isDaytime } = getTimelinePositions(sunrise, sunset)
+  const [currentTime, setCurrentTime] = useState(() => Date.now() / 1000)
+
+  // Update current time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now() / 1000)
+    }, 60000) // Update every 60 seconds
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const sunriseTime = useMemo(() => formatTime(sunrise), [sunrise])
+  const sunsetTime = useMemo(() => formatTime(sunset), [sunset])
+  const nextEvent = useMemo(() => getNextSunEvent(sunrise, sunset), [sunrise, sunset])
+  const { sunrisePercent, sunsetPercent, currentPercent, isDaytime } = useMemo(
+    () => getTimelinePositions(sunrise, sunset),
+    [sunrise, sunset, currentTime]
+  )
 
   const Icon = useMemo<ComponentType<SVGProps<SVGSVGElement>>>(
     () =>
       lazy(
         () =>
-          import(`./weather-icons/${nextEvent.iconName}.svg?react`) as Promise<{
+          import(`./weather-icons/static/${nextEvent.iconName}.svg?react`) as Promise<{
             default: ComponentType<SVGProps<SVGSVGElement>>
           }>
       ),
@@ -136,7 +150,7 @@ export default function SunSection({
     () =>
       lazy(
         () =>
-          import(`./weather-icons/${isDaytime ? 'clear-day' : 'clear-night'}.svg?react`) as Promise<{
+          import(`./weather-icons/static/${isDaytime ? 'clear-day' : 'clear-night'}.svg?react`) as Promise<{
             default: ComponentType<SVGProps<SVGSVGElement>>
           }>
       ),
@@ -168,7 +182,7 @@ export default function SunSection({
 
         {/* Total daylight duration */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-lg text-white/60">Daylight</span>
+          <span className="text-lg text-white/60">Total daylight</span>
           <span className="text-lg text-white/60">
             {Math.floor((sunset - sunrise) / 3600)}h {Math.floor(((sunset - sunrise) % 3600) / 60)}m
           </span>
@@ -199,7 +213,8 @@ export default function SunSection({
       {/* Right side: Large sun icon */}
       <div className="flex items-center justify-center">
         <Suspense fallback={<div className="size-48 lg:size-64" />}>
-          <Icon className="size-32 translate-x-6 text-white lg:size-64 lg:translate-x-12" />
+          <Icon key={`sun-section-icon-${nextEvent.iconName}`}
+            className="size-32 translate-x-6 text-white lg:size-64 lg:translate-x-12" />
         </Suspense>
       </div>
     </div>
