@@ -69,10 +69,10 @@ export default function Compliments({
   const addComplimentsByKey = useCallback(
     (compliments: WeightedCompliment[], key: string, weight: number) => {
       const typedKey = key as keyof typeof complimentsData
-      console.log('Adding compliments for key:', typedKey)
+      // console.log('Adding compliments for key:', typedKey)
       if (complimentsData[typedKey]?.length > 0) {
         const items = complimentsData[typedKey].map(text => ({ text, weight }))
-        console.log('Compliments:', items)
+        // console.log('Compliments:', items)
         compliments.push(...items)
       }
     },
@@ -123,7 +123,7 @@ export default function Compliments({
     if (compliments.length < 10) {
       addComplimentsByKey(compliments, 'anytime', 10)
     }
-    console.log('Final compliments list:', compliments)
+    // console.log('Final compliments list:', compliments)
     return compliments
   }, [weatherCondition, isDaytime, isHoliday, getTimeOfDay, addComplimentsByKey])
 

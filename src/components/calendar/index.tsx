@@ -19,10 +19,20 @@ type CalendarProps = {
 }
 
 export const Calendar = ({ config }: CalendarProps) => {
-  const [now] = useState(new Date())
+  const [now, setNow] = useState(new Date())
   const holidays = config?.holidays || []
   const weekStartsOn = config?.weekStartsOn ?? 1
+  const refreshIntervalSeconds = config?.refreshIntervalSeconds ?? 60
   const setIsHoliday = useSharedStore((state) => state.setIsHoliday)
+
+  // Update calendar at configured interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date())
+    }, refreshIntervalSeconds * 1000)
+
+    return () => clearInterval(interval)
+  }, [refreshIntervalSeconds])
 
   const days = useMemo(() => {
     const monthStart = startOfMonth(now)

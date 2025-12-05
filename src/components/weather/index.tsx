@@ -8,6 +8,7 @@ import HumidityDisplay from './humidity-display'
 import MoonDisplay from './moon-display'
 import MoonSection from './moon-section'
 import NextSunDisplay from './next-sun-display'
+import SunSection from './sun-section'
 import type { OpenWeatherMapResponse, WeatherId } from './types'
 import UvDisplay from './uv-display'
 import WeatherIcon from './weather-icon'
@@ -22,6 +23,7 @@ type WeatherConfig = {
   hourly?: boolean
   daily?: boolean
   moon?: boolean
+  sun?: boolean
 }
 
 type WeatherProps = {
@@ -93,7 +95,8 @@ export const Weather = ({ config }: WeatherProps) => {
     exclude = 'minutely,alerts',
     hourly = true,
     daily = true,
-    moon = true
+    moon = true,
+    sun = true
   } = config
 
   const { data, isLoading, error } = useWeatherData({
@@ -226,6 +229,15 @@ export const Weather = ({ config }: WeatherProps) => {
               moonPhase={moonPhase}
               moonrise={data.daily[0]?.moonrise}
               moonset={data.daily[0]?.moonset}
+            />
+          )}
+
+          {/* Seventh row: sun section */}
+          {sun && (
+            <SunSection
+              className="pt-4"
+              sunrise={data.current.sunrise}
+              sunset={data.current.sunset}
             />
           )}
         </div>
