@@ -8,17 +8,29 @@ type BinDaysProps = {
   config: BinDaysConfig
 }
 
-const applyHolidayException = (date: Date, exceptions: HolidayException[] = []): Date => {
+const applyHolidayException = (
+  date: Date,
+  exceptions: HolidayException[] = []
+): { date: Date; daysDelay: number } => {
   const dateStr = format(date, 'yyyy-MM-dd')
   const exception = exceptions.find((ex) => ex.originalDate === dateStr)
-  return exception ? startOfDay(parseISO(exception.revisedDate)) : date
+
+  if (exception) {
+    const revisedDate = startOfDay(parseISO(exception.revisedDate))
+    const daysDelay = Math.ceil(
+      (revisedDate.getTime() - date.getTime()) / (24 * 60 * 60 * 1000)
+    )
+    return { date: revisedDate, daysDelay }
+  }
+
+  return { date, daysDelay: 0 }
 }
 
 const calculateNextCollection = (
   collection: CollectionType,
   now: Date,
   holidayExceptions: HolidayException[] = []
-): Date => {
+): { date: Date; daysDelay: number } => {
   const reference = startOfDay(parseISO(collection.referenceDate))
   const today = startOfDay(now)
 
@@ -31,7 +43,9 @@ const calculateNextCollection = (
         : nextDay(today, collection.dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6)
 
   if (collection.frequency === 'weekly') {
-    return applyHolidayException(candidate, holidayExceptions)
+    // Calculate display date (night before collection) BEFORE applying holiday exceptions
+    const displayCandidate = subDays(candidate, 1)
+    return applyHolidayException(displayCandidate, holidayExceptions)
   }
 
   // For biweekly, need to check if we're in the right week
@@ -45,7 +59,9 @@ const calculateNextCollection = (
     candidate = addWeeks(candidate, 1)
   }
 
-  return applyHolidayException(candidate, holidayExceptions)
+  // Calculate display date (night before collection) BEFORE applying holiday exceptions
+  const displayCandidate = subDays(candidate, 1)
+  return applyHolidayException(displayCandidate, holidayExceptions)
 }
 
 export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
@@ -61,11 +77,12 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
   }, [refreshIntervalSeconds])
 
   const nextCollections = useMemo(() => {
-    // Calculate collection dates (subtract 1 day for Tuesday night pickup)
+    // Calculate collection dates (night before pickup is already calculated)
     const collectionsWithDates = collections
       .map((collection) => {
-        const actualCollectionDate = calculateNextCollection(collection, now, holidayExceptions)
-        const displayDate = subDays(actualCollectionDate, 1) // Show as Tuesday night
+        const collectionResult = calculateNextCollection(collection, now, holidayExceptions)
+        const displayDate = collectionResult.date // Already the night before with exceptions applied
+        const daysDelay = collectionResult.daysDelay
         const daysUntil = Math.ceil(
           (displayDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
         )
@@ -73,7 +90,8 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
         return {
           ...collection,
           displayDate,
-          daysUntil
+          daysUntil,
+          daysDelay
         }
       })
       .sort((a, b) => a.displayDate.getTime() - b.displayDate.getTime())
@@ -93,6 +111,7 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
 
   const daysUntil = nextCollections[0].daysUntil
   const displayDate = nextCollections[0].displayDate
+  const daysDelay = nextCollections[0].daysDelay
 
   return (
     <Widget>
@@ -105,7 +124,7 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
         {/* Date info */}
         <div className="flex flex-col items-center gap-1">
           <div className="font-light text-white text-2xl">
-            {format(displayDate, 'EEEE MMM dd')}
+            {format(displayDate, 'E, dd MMMM')}
           </div>
           <div className="font-light text-white/60 text-xl">
             {daysUntil === 0
@@ -113,6 +132,11 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
               : daysUntil === 1
                 ? 'Tomorrow'
                 : `in ${daysUntil} days`}
+            {daysDelay > 0 && (
+              <span className="text-sm text-red-400/80">
+                {' '}+{daysDelay} day{daysDelay > 1 ? 's' : ''}
+              </span>
+            )}
           </div>
         </div>
 
