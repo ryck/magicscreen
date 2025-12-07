@@ -189,10 +189,10 @@ export default function SunSection({
         </div>
 
         {/* Progress bar - 24 hour timeline */}
-        <div className="relative mt-2 h-2 w-full overflow-visible rounded-full bg-indigo-950">
+        <div className="relative mt-2 h-2 w-full overflow-visible rounded-full bg-blue-950">
           {/* Daytime section with gradients at sunrise/sunset */}
           <div
-            className="absolute h-full bg-linear-to-r from-indigo-bg-indigo-950 via-amber-400 to-indigo-bg-indigo-950"
+            className="absolute h-full bg-linear-to-r from-blue-bg-blue-950 via-blue-400 to-blue-bg-blue-950"
             style={{
               left: `${sunrisePercent}%`,
               width: `${sunsetPercent - sunrisePercent}%`
