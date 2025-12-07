@@ -134,6 +134,36 @@ export const Weather = ({ config }: WeatherProps) => {
     }
   }, [data])
 
+  // Calculate next future sunrise and sunset
+  const nextSunTimes = useMemo(() => {
+    if (!data) {
+      return { sunrise: 0, sunset: 0 }
+    }
+    const now = Date.now() / 1000
+
+    // Check if current sunrise/sunset are still in the future
+    if (data.current.sunrise > now && data.current.sunset > now) {
+      return { sunrise: data.current.sunrise, sunset: data.current.sunset }
+    }
+
+    // If sunset has passed, use tomorrow's times from daily[1]
+    if (data.current.sunset < now && data.daily[1]) {
+      return { sunrise: data.daily[1].sunrise, sunset: data.daily[1].sunset }
+    }
+
+    // If only sunrise has passed but sunset is still future
+    if (data.current.sunrise < now && data.current.sunset > now) {
+      // Use today's sunset and tomorrow's sunrise
+      return {
+        sunrise: data.daily[1]?.sunrise ?? data.current.sunrise,
+        sunset: data.current.sunset
+      }
+    }
+
+    // Fallback to current values
+    return { sunrise: data.current.sunrise, sunset: data.current.sunset }
+  }, [data])
+
   // Update shared store when weather data changes
   const setWeather = useSharedStore((state) => state.setWeather)
 
@@ -242,8 +272,8 @@ export const Weather = ({ config }: WeatherProps) => {
           {sun && (
             <SunSection
               className="pt-4"
-              sunrise={data.current.sunrise}
-              sunset={data.current.sunset}
+              sunrise={nextSunTimes.sunrise}
+              sunset={nextSunTimes.sunset}
             />
           )}
         </div>
