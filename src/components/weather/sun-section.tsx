@@ -4,6 +4,8 @@ import { config } from '@/config'
 type SunSectionProps = {
   sunrise: number
   sunset: number
+  currentDaySunrise: number
+  currentDaySunset: number
   className?: string
 }
 
@@ -114,6 +116,8 @@ const getTimelinePositions = (sunrise: number, sunset: number) => {
 export default function SunSection({
   sunrise,
   sunset,
+  currentDaySunrise,
+  currentDaySunset,
   className = ''
 }: SunSectionProps) {
   const [currentTime, setCurrentTime] = useState(() => Date.now() / 1000)
@@ -131,8 +135,8 @@ export default function SunSection({
   const sunsetTime = useMemo(() => formatTime(sunset), [sunset])
   const nextEvent = useMemo(() => getNextSunEvent(sunrise, sunset), [sunrise, sunset])
   const { sunrisePercent, sunsetPercent, currentPercent, isDaytime } = useMemo(
-    () => getTimelinePositions(sunrise, sunset),
-    [sunrise, sunset, currentTime]
+    () => getTimelinePositions(currentDaySunrise, currentDaySunset),
+    [currentDaySunrise, currentDaySunset, currentTime]
   )
 
   const Icon = useMemo<ComponentType<SVGProps<SVGSVGElement>>>(
@@ -184,7 +188,7 @@ export default function SunSection({
         <div className="flex items-center justify-between gap-2">
           <span className="text-lg text-white/60">Total daylight</span>
           <span className="text-lg text-white/60">
-            {Math.floor((sunset - sunrise) / 3600)}h {Math.floor(((sunset - sunrise) % 3600) / 60)}m
+            {Math.floor((currentDaySunset - currentDaySunrise) / 3600)}h {Math.floor(((currentDaySunset - currentDaySunrise) % 3600) / 60)}m
           </span>
         </div>
 

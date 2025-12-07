@@ -274,6 +274,8 @@ export const Weather = ({ config }: WeatherProps) => {
               className="pt-4"
               sunrise={nextSunTimes.sunrise}
               sunset={nextSunTimes.sunset}
+              currentDaySunrise={data.current.sunrise}
+              currentDaySunset={data.current.sunset}
             />
           )}
         </div>
