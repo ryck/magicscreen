@@ -177,14 +177,22 @@ app.get('/api/plex/*splat', async (req: Request, res: Response) => {
 	const plexPath = req.path.replace('/api/plex/', '')
 
 	const baseUrl = process.env.PLEX_BASE_URL
+	const plexToken = process.env.PLEX_TOKEN
 
 	if (!baseUrl) {
 		return res.status(500).json({ error: 'Plex base URL not configured' })
 	}
 
 	try {
-		const apiUrl = `${baseUrl}/${plexPath}`
-		console.log(`\x1b[36m➡︎\x1b[0m [${req.method}] ${apiUrl}`)
+		const params = new URLSearchParams(req.query as Record<string, string>)
+
+		// Add Plex token if configured
+		if (plexToken) {
+			params.set('X-Plex-Token', plexToken)
+		}
+
+		const apiUrl = `${baseUrl}/${plexPath}?${params.toString()}`
+		console.log(`\x1b[36m➡︎\x1b[0m [${req.method}] ${apiUrl.replace(plexToken || '', '***')}`)
 
 		const response = await fetch(apiUrl, {
 			headers: {
