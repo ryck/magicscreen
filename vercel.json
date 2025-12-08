@@ -1,0 +1,24 @@
+{
+	"rewrites": [
+		{
+			"source": "/api/rtt/:path*",
+			"destination": "/api/rtt"
+		},
+		{
+			"source": "/api/waqi/:path*",
+			"destination": "/api/waqi"
+		},
+		{
+			"source": "/api/openweather/:path*",
+			"destination": "/api/openweather"
+		},
+		{
+			"source": "/api/tfl/:path*",
+			"destination": "/api/tfl"
+		},
+		{
+			"source": "/api/plex/:path*",
+			"destination": "/api/plex"
+		}
+	]
+}

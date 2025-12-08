@@ -72,7 +72,7 @@ const App = () => (
         }} />
 
         <Plex config={{
-          baseUrl: 'http://192.168.1.5:32400',
+          baseUrl: '/api/plex',
           refreshIntervalSeconds: 30
         }} />
 
