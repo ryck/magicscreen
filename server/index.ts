@@ -172,6 +172,37 @@ app.get('/api/tfl/*splat', async (req: Request, res: Response) => {
 	}
 })
 
+// Plex API Proxy
+app.get('/api/plex/*splat', async (req: Request, res: Response) => {
+	const plexPath = req.path.replace('/api/plex/', '')
+
+	const baseUrl = process.env.PLEX_BASE_URL
+
+	if (!baseUrl) {
+		return res.status(500).json({ error: 'Plex base URL not configured' })
+	}
+
+	try {
+		const apiUrl = `${baseUrl}/${plexPath}`
+		console.log(`\x1b[36m➡︎\x1b[0m [${req.method}] ${apiUrl}`)
+
+		const response = await fetch(apiUrl, {
+			headers: {
+				Accept: 'application/json'
+			}
+		})
+
+		if (!response.ok) {
+			throw new Error(`Plex API responded with status ${response.status}`)
+		}
+
+		const data = await response.json()
+		res.json(data)
+	} catch (_error) {
+		res.status(500).json({ error: 'Failed to fetch from Plex API' })
+	}
+})
+
 // Health check endpoint for Docker
 app.get('/health', (_req: Request, res: Response) => {
 	res.status(200).json({ status: 'ok' })
