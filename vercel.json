@@ -9,6 +9,10 @@
 			"destination": "/api/waqi"
 		},
 		{
+			"source": "/api/weather",
+			"destination": "/api/openweather"
+		},
+		{
 			"source": "/api/openweather/:path*",
 			"destination": "/api/openweather"
 		},
