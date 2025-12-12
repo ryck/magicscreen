@@ -18,4 +18,5 @@ export type BinDaysConfig = {
 	collections: CollectionType[]
 	holidayExceptions?: HolidayException[]
 	refreshIntervalSeconds?: number
+	cutoffHour?: number // Hour (0-23) when the display switches from "Now!" to next week, default 7
 }

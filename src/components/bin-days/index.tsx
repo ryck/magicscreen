@@ -45,7 +45,16 @@ const calculateNextCollection = (
   if (collection.frequency === 'weekly') {
     // Calculate display date (night before collection) BEFORE applying holiday exceptions
     const displayCandidate = subDays(candidate, 1)
-    return applyHolidayException(displayCandidate, holidayExceptions)
+    const result = applyHolidayException(displayCandidate, holidayExceptions)
+
+    // If the display date is in the past, move to next week
+    if (result.date < today) {
+      const nextWeekCandidate = addWeeks(candidate, 1)
+      const nextDisplayCandidate = subDays(nextWeekCandidate, 1)
+      return applyHolidayException(nextDisplayCandidate, holidayExceptions)
+    }
+
+    return result
   }
 
   // For biweekly, need to check if we're in the right week
@@ -61,11 +70,20 @@ const calculateNextCollection = (
 
   // Calculate display date (night before collection) BEFORE applying holiday exceptions
   const displayCandidate = subDays(candidate, 1)
-  return applyHolidayException(displayCandidate, holidayExceptions)
+  const result = applyHolidayException(displayCandidate, holidayExceptions)
+
+  // If the display date is in the past, move to next cycle (2 weeks for biweekly)
+  if (result.date < today) {
+    const nextCycleCandidate = addWeeks(candidate, 2)
+    const nextDisplayCandidate = subDays(nextCycleCandidate, 1)
+    return applyHolidayException(nextDisplayCandidate, holidayExceptions)
+  }
+
+  return result
 }
 
 export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
-  const { collections, holidayExceptions, refreshIntervalSeconds = 60 * 60 } = widgetConfig
+  const { collections, holidayExceptions, refreshIntervalSeconds = 60 * 60, cutoffHour = 7 } = widgetConfig
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -77,12 +95,43 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
   }, [refreshIntervalSeconds])
 
   const nextCollections = useMemo(() => {
+    const today = startOfDay(now)
+    const currentHour = now.getHours()
+
     // Calculate collection dates (night before pickup is already calculated)
     const collectionsWithDates = collections
       .map((collection) => {
         const collectionResult = calculateNextCollection(collection, now, holidayExceptions)
         const displayDate = collectionResult.date // Already the night before with exceptions applied
         const daysDelay = collectionResult.daysDelay
+
+        // Check if display date is today but we've passed cutoff hour
+        const isToday = displayDate.getTime() === today.getTime()
+        const passedCutoff = currentHour >= cutoffHour
+
+        // If it's today but past cutoff, skip to next collection
+        if (isToday && passedCutoff) {
+          // Get next collection by adding appropriate weeks
+          const actualCollectionDay = new Date(displayDate)
+          actualCollectionDay.setDate(actualCollectionDay.getDate() + 1)
+
+          const weeksToAdd = collection.frequency === 'weekly' ? 1 : 2
+          const nextCandidate = addWeeks(actualCollectionDay, weeksToAdd)
+          const nextDisplayCandidate = subDays(nextCandidate, 1)
+          const nextResult = applyHolidayException(nextDisplayCandidate, holidayExceptions)
+
+          const nextDaysUntil = Math.ceil(
+            (nextResult.date.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
+          )
+
+          return {
+            ...collection,
+            displayDate: nextResult.date,
+            daysUntil: nextDaysUntil,
+            daysDelay: nextResult.daysDelay
+          }
+        }
+
         const daysUntil = Math.ceil(
           (displayDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)
         )
@@ -103,7 +152,7 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
 
     // Return all collections that share the earliest date
     return collectionsWithDates.filter((c) => c.displayDate.getTime() === earliestDate)
-  }, [collections, now, holidayExceptions])
+  }, [collections, now, holidayExceptions, cutoffHour])
 
   if (nextCollections.length === 0) {
     return null
@@ -112,6 +161,12 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
   const daysUntil = nextCollections[0].daysUntil
   const displayDate = nextCollections[0].displayDate
   const daysDelay = nextCollections[0].daysDelay
+
+  // Check if display date is today and before cutoff
+  const today = startOfDay(now)
+  const isToday = displayDate.getTime() === today.getTime()
+  const currentHour = now.getHours()
+  const beforeCutoff = currentHour < cutoffHour
 
   return (
     <Widget>
@@ -127,11 +182,13 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
             {format(displayDate, 'E, dd MMMM')}
           </div>
           <div className="font-light text-white/60 text-xl">
-            {daysUntil === 0
-              ? 'Tonight'
-              : daysUntil === 1
-                ? 'Tomorrow'
-                : `in ${daysUntil} days`}
+            {isToday && beforeCutoff
+              ? 'Now!'
+              : daysUntil === 0
+                ? 'Tonight'
+                : daysUntil === 1
+                  ? 'Tomorrow'
+                  : `in ${daysUntil} days`}
             {daysDelay > 0 && (
               <span className="text-sm text-red-400/80">
                 {' '}+{daysDelay} day{daysDelay > 1 ? 's' : ''}
