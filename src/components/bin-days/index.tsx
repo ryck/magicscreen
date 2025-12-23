@@ -43,18 +43,20 @@ const calculateNextCollection = (
         : nextDay(today, collection.dayOfWeek as 0 | 1 | 2 | 3 | 4 | 5 | 6)
 
   if (collection.frequency === 'weekly') {
-    // Calculate display date (night before collection) BEFORE applying holiday exceptions
-    const displayCandidate = subDays(candidate, 1)
-    const result = applyHolidayException(displayCandidate, holidayExceptions)
+    // Apply holiday exceptions to the collection day itself
+    const result = applyHolidayException(candidate, holidayExceptions)
+    // Calculate display date (night before collection) AFTER applying holiday exceptions
+    const displayDate = subDays(result.date, 1)
 
     // If the display date is in the past, move to next week
-    if (result.date < today) {
+    if (displayDate < today) {
       const nextWeekCandidate = addWeeks(candidate, 1)
-      const nextDisplayCandidate = subDays(nextWeekCandidate, 1)
-      return applyHolidayException(nextDisplayCandidate, holidayExceptions)
+      const nextResult = applyHolidayException(nextWeekCandidate, holidayExceptions)
+      const nextDisplayDate = subDays(nextResult.date, 1)
+      return { date: nextDisplayDate, daysDelay: nextResult.daysDelay }
     }
 
-    return result
+    return { date: displayDate, daysDelay: result.daysDelay }
   }
 
   // For biweekly, need to check if we're in the right week
@@ -68,18 +70,20 @@ const calculateNextCollection = (
     candidate = addWeeks(candidate, 1)
   }
 
-  // Calculate display date (night before collection) BEFORE applying holiday exceptions
-  const displayCandidate = subDays(candidate, 1)
-  const result = applyHolidayException(displayCandidate, holidayExceptions)
+  // Apply holiday exceptions to the collection day itself
+  const result = applyHolidayException(candidate, holidayExceptions)
+  // Calculate display date (night before collection) AFTER applying holiday exceptions
+  const displayDate = subDays(result.date, 1)
 
   // If the display date is in the past, move to next cycle (2 weeks for biweekly)
-  if (result.date < today) {
+  if (displayDate < today) {
     const nextCycleCandidate = addWeeks(candidate, 2)
-    const nextDisplayCandidate = subDays(nextCycleCandidate, 1)
-    return applyHolidayException(nextDisplayCandidate, holidayExceptions)
+    const nextResult = applyHolidayException(nextCycleCandidate, holidayExceptions)
+    const nextDisplayDate = subDays(nextResult.date, 1)
+    return { date: nextDisplayDate, daysDelay: nextResult.daysDelay }
   }
 
-  return result
+  return { date: displayDate, daysDelay: result.daysDelay }
 }
 
 export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
@@ -97,6 +101,8 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
   const nextCollections = useMemo(() => {
     const today = startOfDay(now)
     const currentHour = now.getHours()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
 
     // Calculate collection dates (night before pickup is already calculated)
     const collectionsWithDates = collections
@@ -105,18 +111,19 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
         const displayDate = collectionResult.date // Already the night before with exceptions applied
         const daysDelay = collectionResult.daysDelay
 
-        // Check if display date is today but we've passed cutoff hour
-        const isToday = displayDate.getTime() === today.getTime()
+        // Display date is when to put bins out (e.g., Tuesday night)
+        // Actual collection is the day after (e.g., Wednesday)
+        const actualCollectionDate = new Date(displayDate)
+        actualCollectionDate.setDate(actualCollectionDate.getDate() + 1)
+
+        // Check if we're on the actual collection day (after midnight) and past cutoff
+        const isCollectionDay = actualCollectionDate.getTime() === today.getTime()
         const passedCutoff = currentHour >= cutoffHour
 
-        // If it's today but past cutoff, skip to next collection
-        if (isToday && passedCutoff) {
-          // Get next collection by adding appropriate weeks
-          const actualCollectionDay = new Date(displayDate)
-          actualCollectionDay.setDate(actualCollectionDay.getDate() + 1)
-
+        // If it's collection day and past cutoff, skip to next collection
+        if (isCollectionDay && passedCutoff) {
           const weeksToAdd = collection.frequency === 'weekly' ? 1 : 2
-          const nextCandidate = addWeeks(actualCollectionDay, weeksToAdd)
+          const nextCandidate = addWeeks(actualCollectionDate, weeksToAdd)
           const nextDisplayCandidate = subDays(nextCandidate, 1)
           const nextResult = applyHolidayException(nextDisplayCandidate, holidayExceptions)
 
@@ -162,11 +169,28 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
   const displayDate = nextCollections[0].displayDate
   const daysDelay = nextCollections[0].daysDelay
 
-  // Check if display date is today and before cutoff
+  // Determine display text
   const today = startOfDay(now)
-  const isToday = displayDate.getTime() === today.getTime()
   const currentHour = now.getHours()
+
+  // Display date is when to put bins out (Tuesday)
+  // The day after is when bins are collected (Wednesday)
+  const isDisplayDay = displayDate.getTime() === today.getTime() // Is it Tuesday?
+  const actualCollectionDate = new Date(displayDate)
+  actualCollectionDate.setDate(actualCollectionDate.getDate() + 1)
+  const isCollectionDay = actualCollectionDate.getTime() === today.getTime() // Is it Wednesday?
   const beforeCutoff = currentHour < cutoffHour
+
+  let timeText: string
+  if (isDisplayDay) {
+    timeText = 'Tonight' // Tuesday - put bins out tonight
+  } else if (isCollectionDay && beforeCutoff) {
+    timeText = 'Now!' // Wednesday before 7am - last chance!
+  } else if (daysUntil === 1) {
+    timeText = 'Tomorrow'
+  } else {
+    timeText = `in ${daysUntil} days`
+  }
 
   return (
     <Widget>
@@ -182,13 +206,7 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
             {format(displayDate, 'E, dd MMMM')}
           </div>
           <div className="font-light text-white/60 text-xl">
-            {isToday && beforeCutoff
-              ? 'Now!'
-              : daysUntil === 0
-                ? 'Tonight'
-                : daysUntil === 1
-                  ? 'Tomorrow'
-                  : `in ${daysUntil} days`}
+            {timeText}
             {daysDelay > 0 && (
               <span className="text-sm text-red-400/80">
                 {' '}+{daysDelay} day{daysDelay > 1 ? 's' : ''}

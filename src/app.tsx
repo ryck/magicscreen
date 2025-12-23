@@ -78,14 +78,14 @@ const App = () => (
 
         <BinDays config={{
           collections: [
-            {
-              name: 'Food',
-              dayOfWeek: 3,
-              frequency: 'weekly' as const,
-              weekOffset: 0 as 0 | 1,
-              referenceDate: '2024-12-03',
-              accent: 'oklch(66.6% 0.179 58.318)'
-            },
+            // {
+            //   name: 'Food',
+            //   dayOfWeek: 3,
+            //   frequency: 'weekly' as const,
+            //   weekOffset: 0 as 0 | 1,
+            //   referenceDate: '2024-12-03',
+            //   accent: 'oklch(66.6% 0.179 58.318)'
+            // },
             {
               name: 'Recycling',
               dayOfWeek: 3,
@@ -112,7 +112,7 @@ const App = () => (
             }
           ],
           holidayExceptions: [
-            // { originalDate: '2025-12-09', revisedDate: '2025-12-12' },
+            // { originalDate: '2025-12-24', revisedDate: '2025-12-27' },
             { originalDate: '2025-12-25', revisedDate: '2025-12-27' },
             { originalDate: '2025-12-26', revisedDate: '2025-12-29' },
             { originalDate: '2025-12-29', revisedDate: '2025-12-30' },
