@@ -10,7 +10,7 @@ type HourlyDisplayProps = {
   iconType?: 'animated' | 'static'
 }
 
-const HOURLY_FORECAST = 6 // Show next 8 hours
+const HOURLY_FORECAST = 8 // Show next 8 hours
 
 type HourlyItem = {
   dt: number
