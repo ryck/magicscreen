@@ -8,6 +8,7 @@ import {
 	subDays
 } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
+import { Apple, Recycle, FileText, Trash2 } from 'lucide-react'
 import { Widget } from '../widget'
 import type { BinDaysConfig, CollectionType, HolidayException } from './types'
 
@@ -249,33 +250,28 @@ export const BinDays = ({ config: widgetConfig }: BinDaysProps) => {
 
 				{/* Icons row */}
 				<div className="flex items-center gap-6">
-					{nextCollections.map((collection) => (
-						<div
-							key={collection.name}
-							className="flex flex-col items-center gap-2"
-						>
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								width="48"
-								height="48"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke={collection.accent}
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
+					{nextCollections.map((collection) => {
+						const IconComponent =
+							collection.type === 'FOOD'
+								? Apple
+								: collection.type === 'RECYCLING'
+									? Recycle
+									: collection.type === 'PAPER'
+										? FileText
+										: Trash2
+
+						return (
+							<div
+								key={collection.name}
+								className="flex flex-col items-center gap-2"
 							>
-								<path d="M10 11v6" />
-								<path d="M14 11v6" />
-								<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-								<path d="M3 6h18" />
-								<path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-							</svg>
-							<div className="font-light text-white/80 text-sm text-center">
-								{collection.name}
+								<IconComponent size={48} color={collection.accent} />
+								<div className="font-light text-white/80 text-sm text-center">
+									{collection.name}
+								</div>
 							</div>
-						</div>
-					))}
+						)
+					})}
 				</div>
 			</div>
 		</Widget>

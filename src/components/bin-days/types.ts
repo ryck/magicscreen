@@ -1,7 +1,10 @@
 export type CollectionFrequency = 'weekly' | 'biweekly'
 
+export type CollectionTypeEnum = 'FOOD' | 'RECYCLING' | 'PAPER' | 'GENERAL'
+
 export type CollectionType = {
 	name: string
+	type: CollectionTypeEnum
 	dayOfWeek: number // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 	frequency: CollectionFrequency
 	weekOffset: 0 | 1 // For biweekly: which week in the cycle (0 or 1)
