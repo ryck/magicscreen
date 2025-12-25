@@ -65,7 +65,12 @@ app.get('/api/rtt/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res.status(500).json({ error: 'Failed to fetch from RTT API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from RTT API',
+				details: (_error as Error).message
+			})
 	}
 })
 
@@ -97,7 +102,12 @@ app.get('/api/waqi/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res.status(500).json({ error: 'Failed to fetch from WAQI API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from WAQI API',
+				details: (_error as Error).message
+			})
 	}
 })
 
@@ -131,7 +141,12 @@ app.get('/api/weather', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res.status(500).json({ error: 'Failed to fetch from OpenWeatherMap API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from OpenWeatherMap API',
+				details: (_error as Error).message
+			})
 	}
 })
 
@@ -168,7 +183,12 @@ app.get('/api/tfl/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res.status(500).json({ error: 'Failed to fetch from TfL API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from TfL API',
+				details: (_error as Error).message
+			})
 	}
 })
 
@@ -192,7 +212,9 @@ app.get('/api/plex/*splat', async (req: Request, res: Response) => {
 		}
 
 		const apiUrl = `${baseUrl}/${plexPath}?${params.toString()}`
-		console.log(`\x1b[36m➡︎\x1b[0m [${req.method}] ${apiUrl.replace(plexToken || '', '***')}`)
+		console.log(
+			`\x1b[36m➡︎\x1b[0m [${req.method}] ${apiUrl.replace(plexToken || '', '***')}`
+		)
 
 		const response = await fetch(apiUrl, {
 			headers: {
@@ -207,7 +229,12 @@ app.get('/api/plex/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res.status(500).json({ error: 'Failed to fetch from Plex API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from Plex API',
+				details: (_error as Error).message
+			})
 	}
 })
 
@@ -226,7 +253,6 @@ if (isProduction) {
 app.listen(PORT, () => {
 	console.log(`🚀 Proxy server running on http://localhost:${PORT}`)
 })
-
 
 // Handle uncaught errors gracefully
 process.on('uncaughtException', (error) => {

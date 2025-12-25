@@ -33,6 +33,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const data = await response.json()
 		res.json(data)
 	} catch (error) {
-		res.status(500).json({ error: 'Failed to fetch from WAQI API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from WAQI API',
+				details: (error as Error).message
+			})
 	}
 }

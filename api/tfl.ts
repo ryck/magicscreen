@@ -35,6 +35,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const data = await response.json()
 		res.json(data)
 	} catch (error) {
-		res.status(500).json({ error: 'Failed to fetch from TfL API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from TfL API',
+				details: (error as Error).message
+			})
 	}
 }

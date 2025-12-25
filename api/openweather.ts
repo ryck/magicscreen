@@ -4,7 +4,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 	const apiKey = process.env.OPENWEATHER_API_KEY
 
 	if (!apiKey) {
-		return res.status(500).json({ error: 'OpenWeatherMap API key not configured' })
+		return res
+			.status(500)
+			.json({ error: 'OpenWeatherMap API key not configured' })
 	}
 
 	try {
@@ -24,12 +26,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 		const response = await fetch(apiUrl)
 
 		if (!response.ok) {
-			throw new Error(`OpenWeatherMap API responded with status ${response.status}`)
+			throw new Error(
+				`OpenWeatherMap API responded with status ${response.status}`
+			)
 		}
 
 		const data = await response.json()
 		res.json(data)
 	} catch (error) {
-		res.status(500).json({ error: 'Failed to fetch from OpenWeatherMap API' })
+		res
+			.status(500)
+			.json({
+				error: 'Failed to fetch from OpenWeatherMap API',
+				details: (error as Error).message
+			})
 	}
 }
