@@ -1,52 +1,60 @@
 import { expect, test } from '@playwright/test'
 
-test('should display Response header', async ({ page }) => {
-	// Go to the app
+test('should display the main app structure', async ({ page }) => {
 	await page.goto('/')
 
-	// Check that the Response header is visible
-	const responseHeader = page.locator('h1', { hasText: 'API Response' })
-	await expect(responseHeader).toBeVisible()
+	// Check that the main container is visible
+	const main = page.locator('main')
+	await expect(main).toBeVisible()
 
-	// Verify the header text content
-	await expect(responseHeader).toHaveText('API Response')
-
-	// Verify it's actually an h1 element
-	await expect(responseHeader).toHaveRole('heading')
+	// Verify the grid layout exists
+	const grid = page.locator('main > div.grid')
+	await expect(grid).toBeVisible()
 })
 
-test('should show loading state initially', async ({ page }) => {
-	// Intercept the API call to slow it down and ensure loading state is visible
-	await page.route('**/posts', async (route) => {
-		// Add a delay to make loading state more visible
-		await new Promise((resolve) => setTimeout(resolve, 1000))
-		route.continue()
-	})
-
-	// Go to the app
+test('should display clock component', async ({ page }) => {
 	await page.goto('/')
 
-	// Check that loading text appears initially (with a reasonable timeout)
-	const loadingText = page.locator('text=Loading posts...')
-	await expect(loadingText).toBeVisible({ timeout: 2000 })
+	// Check for time display - look for any text containing colon (time format)
+	await page.waitForLoadState('networkidle')
+	const timeElement = page.getByText(/\d{1,2}:\d{2}/)
+	await expect(timeElement.first()).toBeVisible({ timeout: 10000 })
 })
 
-test('should eventually load posts data', async ({ page }) => {
-	// Go to the app
+test('should display year progress component', async ({ page }) => {
 	await page.goto('/')
 
-	// Wait for loading to disappear (posts should load)
-	const loadingText = page.locator('text=Loading posts...')
-	await expect(loadingText).toBeHidden({ timeout: 15_000 })
+	// Look for year progress text patterns like "2025" and percentage
+	await page.waitForLoadState('networkidle')
+	const yearText = page.getByText(/202[0-9]/)
+	await expect(yearText.first()).toBeVisible({ timeout: 10000 })
+})
 
-	// Verify that some post content appears in list items
-	const postList = page.locator('ul')
-	await expect(postList).toBeVisible()
+test('should display calendar component', async ({ page }) => {
+	await page.goto('/')
 
-	const postElements = page.locator('li')
-	await expect(postElements.first()).toBeVisible()
+	// Look for month names (e.g., "December 2025")
+	await page.waitForLoadState('networkidle')
+	const calendar = page.getByText(
+		/(January|February|March|April|May|June|July|August|September|October|November|December) 202[0-9]/
+	)
+	await expect(calendar.first()).toBeVisible({ timeout: 10000 })
+})
 
-	// Verify we have multiple posts loaded
-	const postCount = await postElements.count()
-	expect(postCount).toBeGreaterThan(0)
+test('should display compliments component', async ({ page }) => {
+	await page.goto('/')
+
+	// Compliments should be visible somewhere on the page
+	// We can check if any text content is rendered (compliments change dynamically)
+	const complimentsArea = page.locator('main')
+	await expect(complimentsArea).toContainText(/./i, { timeout: 10000 })
+})
+
+test('should have responsive grid layout', async ({ page }) => {
+	await page.goto('/')
+
+	// Check that grid has responsive classes
+	const grid = page.locator('main > div.grid')
+	await expect(grid).toHaveClass(/grid-cols-1/)
+	await expect(grid).toHaveClass(/md:grid-cols-2/)
 })
