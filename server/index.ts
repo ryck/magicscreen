@@ -65,12 +65,10 @@ app.get('/api/rtt/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res
-			.status(500)
-			.json({
-				error: 'Failed to fetch from RTT API',
-				details: (_error as Error).message
-			})
+		res.status(500).json({
+			error: 'Failed to fetch from RTT API',
+			details: (_error as Error).message
+		})
 	}
 })
 
@@ -102,12 +100,10 @@ app.get('/api/waqi/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res
-			.status(500)
-			.json({
-				error: 'Failed to fetch from WAQI API',
-				details: (_error as Error).message
-			})
+		res.status(500).json({
+			error: 'Failed to fetch from WAQI API',
+			details: (_error as Error).message
+		})
 	}
 })
 
@@ -141,12 +137,10 @@ app.get('/api/weather', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res
-			.status(500)
-			.json({
-				error: 'Failed to fetch from OpenWeatherMap API',
-				details: (_error as Error).message
-			})
+		res.status(500).json({
+			error: 'Failed to fetch from OpenWeatherMap API',
+			details: (_error as Error).message
+		})
 	}
 })
 
@@ -183,12 +177,10 @@ app.get('/api/tfl/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res
-			.status(500)
-			.json({
-				error: 'Failed to fetch from TfL API',
-				details: (_error as Error).message
-			})
+		res.status(500).json({
+			error: 'Failed to fetch from TfL API',
+			details: (_error as Error).message
+		})
 	}
 })
 
@@ -229,12 +221,50 @@ app.get('/api/plex/*splat', async (req: Request, res: Response) => {
 		const data = await response.json()
 		res.json(data)
 	} catch (_error) {
-		res
-			.status(500)
-			.json({
-				error: 'Failed to fetch from Plex API',
-				details: (_error as Error).message
-			})
+		res.status(500).json({
+			error: 'Failed to fetch from Plex API',
+			details: (_error as Error).message
+		})
+	}
+})
+
+// Home Assistant API Proxy
+app.get('/api/hass', async (req: Request, res: Response) => {
+	const hassToken = process.env.HASS_TOKEN
+	const hassBaseUrl = process.env.HASS_BASE_URL
+
+	if (!hassToken) {
+		return res.status(500).json({ error: 'HASS token not configured' })
+	}
+
+	if (!hassBaseUrl) {
+		return res.status(500).json({ error: 'HASS base URL not configured' })
+	}
+
+	try {
+		const apiUrl = `${hassBaseUrl}/api/states`
+		console.log(`\x1b[36m➡︎\x1b[0m [${req.method}] ${apiUrl}`)
+
+		const response = await fetch(apiUrl, {
+			headers: {
+				Authorization: `Bearer ${hassToken}`,
+				'Content-Type': 'application/json'
+			}
+		})
+
+		if (!response.ok) {
+			throw new Error(
+				`Home Assistant API responded with status ${response.status}`
+			)
+		}
+
+		const data = await response.json()
+		res.json(data)
+	} catch (_error) {
+		res.status(500).json({
+			error: 'Failed to fetch from Home Assistant API',
+			details: (_error as Error).message
+		})
 	}
 })
 

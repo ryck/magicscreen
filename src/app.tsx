@@ -6,6 +6,7 @@ import Compliments from '@/components/compliments'
 import { HumanizeDuration } from '@/components/humanize-duration'
 import { Plex } from '@/components/plex'
 import { RealTimeTrains } from '@/components/real-time-trains'
+import { TemperatureHumidity } from '@/components/temperature-humidity'
 import { TflArrivals } from '@/components/tfl-arrivals'
 import { Weather } from '@/components/weather'
 import { YearProgress } from '@/components/year-progress'
@@ -69,6 +70,21 @@ const App = () => (
 				<Aqi
 					config={{
 						city: 'London'
+					}}
+				/>
+
+				<TemperatureHumidity
+					config={{
+						entities: [
+							{ name: 'sensor.atc_77ee', location: 'Office' },
+							{ name: 'sensor.master_bedroom', location: 'Master Bedroom' },
+							{ name: 'sensor.living_room', location: 'Living Room' },
+							{ name: 'sensor.atc_4162', location: 'Guest Room' },
+							{ name: 'sensor.atc_fce6', location: 'Rack' },
+							{ name: 'sensor.atc_4373', location: '??' },
+							{ name: 'sensor.atc_e5f8', location: '???' }
+						],
+						refreshIntervalSeconds: 60
 					}}
 				/>
 
